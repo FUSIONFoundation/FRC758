@@ -6,8 +6,8 @@
   "scripts": {
     "test": "npx hardhat run  scripts/sample-script.js --network localhost"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "JimZhou",
+  "license": "Unlicense",
   "devDependencies": {
     "@nomiclabs/buidler": "^1.4.8",
     "@nomiclabs/hardhat-ethers": "^2.0.2",
