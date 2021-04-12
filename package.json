@@ -1,10 +1,11 @@
 {
-  "name": "chaingefrc758",
+  "name": "FRC758",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npx hardhat run  scripts/sample-script.js --network localhost"
+    "deploy": "npx hardhat run  scripts/sample-script.js --network localhost",
+    "test": "npx hardhat test"
   },
   "author": "JimZhou",
   "license": "Unlicense",

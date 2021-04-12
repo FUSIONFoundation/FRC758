@@ -14,7 +14,7 @@ contract ExampleToken is FRC758, Controllable {
         _mint(_receiver, amount, tokenStart, tokenEnd);
     }
 
-    function burn(address _owner, uint256 amount, uint256 tokenStart, uint256 tokenEnd) public onlyController {
+    function burn(address _owner, uint256 amount, uint256 tokenStart, uint256 tokenEnd) external onlyController {
         _burn(_owner, amount, tokenStart, tokenEnd);
     }
 

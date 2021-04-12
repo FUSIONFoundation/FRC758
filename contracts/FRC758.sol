@@ -158,9 +158,9 @@ abstract contract FRC758 is IFRC758 {
         _checkRights(isApprovedOrOwner(msg.sender, _from));
         require(_from != _to, "no sending to yourself");
 
-        _burn(_from, amount, tokenStart, tokenEnd);
-        _mint(_to, amount, tokenStart, tokenEnd);
-
+        SlicedToken memory st = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
+        _subSliceFromBalance(_from, st);
+        _addSliceToBalance(_to, st);
         emit Transfer(_from, _to, amount, tokenStart, tokenEnd);
     }
 
@@ -170,15 +170,15 @@ abstract contract FRC758 is IFRC758 {
         require(checkAndCallSafeTransfer(_from, _to, amount, tokenStart, tokenEnd), "can't make safe transfer");
     }
 
-    function _mint(address _from,  uint256 amount, uint256 tokenStart, uint256 tokenEnd) public {
+    function _mint(address _from,  uint256 amount, uint256 tokenStart, uint256 tokenEnd) internal {
         _validateAddress(_from);
         _validateAmount(amount);
         SlicedToken memory st = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
-        _addSliceToBalance2(_from, st);
+        _addSliceToBalance(_from, st);
         emit Transfer(address(0), _from, amount, tokenStart, tokenEnd);
     }
 
-    function _burn(address _from, uint256 amount, uint256 tokenStart, uint256 tokenEnd) public {
+    function _burn(address _from, uint256 amount, uint256 tokenStart, uint256 tokenEnd) internal {
         _validateAddress(_from);
         _validateAmount(amount);
         SlicedToken memory st = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
@@ -186,51 +186,64 @@ abstract contract FRC758 is IFRC758 {
         emit Transfer(_from, address(0), amount, tokenStart, tokenEnd);
     }
 
-    function _addSliceToBalance2(address addr, SlicedToken memory st) internal {
+    function _addSliceToBalance(address addr, SlicedToken memory st) internal {
         uint256 count = ownedSlicedTokensCount[addr];
         if(count == 0) {
              balances[addr][1] = st;
              ownedSlicedTokensCount[addr] = 1;
-             headerIndex[addr] = 1; 
+             headerIndex[addr] = 1;
              return;
         }
-        uint current = headerIndex[addr];    
+
+        uint current = headerIndex[addr];
+               
         do {
-            SlicedToken storage currSt = balances[addr][current]; 
-            if(st.tokenStart >= currSt.tokenEnd && currSt.next != 0 ) { 
+            SlicedToken storage currSt = balances[addr][current];
+            if(st.tokenStart >= currSt.tokenEnd && currSt.next != 0 ) {
                 current = currSt.next;
                 continue;
             }
-
+    
             if (currSt.tokenStart >= st.tokenEnd) {
-                uint256 index = _addSlice(addr, st.tokenStart, st.tokenEnd, st.amount, current); 
+               console.log('bef all out');
+                uint256 index = _addSlice(addr, st.tokenStart, st.tokenEnd, st.amount, current);
                 if(current == headerIndex[addr]) {
                     headerIndex[addr] = index; 
                 }
                 return;
             }
+
             if(currSt.tokenStart < st.tokenEnd && currSt.tokenStart > st.tokenStart) {
-                // SlicedToken memory leftSt = SlicedToken({amount: st.amount , tokenStart: st.tokenStart, tokenEnd: currSt.tokenStart, next: 0});
-                uint index = _addSlice(addr, st.tokenStart, currSt.tokenStart, st.amount, current); 
-                if(current == headerIndex[addr]) { 
-                    headerIndex[addr] = index; 
+                        console.log('bef out');
+
+                uint index = _addSlice(addr, st.tokenStart, currSt.tokenStart, st.amount, current);
+                if(current == headerIndex[addr]) {
+                    headerIndex[addr] = index;  
+                }else {
+                    uint _current = headerIndex[addr];
+                    while(_current>0) {
+                        if(balances[addr][_current].next == current)  {
+                            balances[addr][_current].next = index;
+                            break;
+                        }
+                        _current = balances[addr][_current].next;
+                    }
                 }
 
-                st.tokenStart = currSt.tokenStart; 
+                st.tokenStart = currSt.tokenStart;
                 continue;
             }
-
             if(currSt.tokenStart == st.tokenStart && currSt.tokenEnd == st.tokenEnd) { 
                 _mergeAmount(currSt, st.amount);
                 return;
             }
             if(currSt.tokenEnd >= st.tokenEnd) {  
-                if(currSt.tokenStart < st.tokenStart) {  
-                    uint currStEndTime = currSt.tokenEnd;
+                if(currSt.tokenStart < st.tokenStart) {
+                    uint currStEndTime = currSt.tokenEnd ;
                     uint256 currStNext = currSt.next;
-                    currSt.tokenEnd = st.tokenStart; 
+                    currSt.tokenEnd = st.tokenStart;
 
-                    uint256 innerIndex = _addSlice(addr, st.tokenStart, st.tokenEnd, st.amount + currSt.amount, 0); 
+                    uint256 innerIndex = _addSlice(addr, st.tokenStart, st.tokenEnd, st.amount + currSt.amount, 0);
                     currSt.next = innerIndex;
 
                     if(currStEndTime > st.tokenEnd) {
@@ -239,45 +252,52 @@ abstract contract FRC758 is IFRC758 {
                     }
                     return;
                 }
-
                  uint256 currStTokenEnd =  currSt.tokenEnd;
                  uint256 currStAmount = currSt.amount;
                 if(currSt.tokenStart == st.tokenStart) {
                     currSt.tokenEnd = st.tokenEnd;
                     _mergeAmount(currSt, st.amount);
-                    // if(currSt.tokenEnd == st.tokenEnd) {
-                    //      return;
-                    // }
-        
                     uint index = _addSlice(addr, st.tokenEnd, currStTokenEnd, currStAmount, currSt.next);
                     currSt.next = index;
                     return;
                 }
-            
             }
-            if( currSt.tokenEnd > st.tokenStart && currSt.tokenEnd >= st.tokenStart) { 
+            if( currSt.tokenEnd > st.tokenStart && currSt.tokenEnd >= st.tokenStart) {
+                console.log('aft out');
+                  uint256 currStTokenEnd = currSt.tokenEnd;
                   if(currSt.tokenStart < st.tokenStart) {
-                      uint index = _addSlice(addr, currSt.tokenStart, st.tokenStart, currSt.amount, current);
-                      headerIndex[addr] = index;
+                    currSt.tokenEnd = st.tokenStart; 
+                    uint index = _addSlice(addr, st.tokenStart, currStTokenEnd, currSt.amount + st.amount, currSt.next);
+                    currSt.next = index;
+                    st.tokenStart = currStTokenEnd;
+                    current = currSt.next;
+                    if(current != 0) {
+                        continue;
+                    }
                   }
                   currSt.tokenStart = st.tokenStart;
                   _mergeAmount(currSt, st.amount);
-                
-                  st.tokenStart = currSt.tokenEnd;
                   current = currSt.next;
                   if(current != 0) {
+                    st.tokenStart = currSt.tokenEnd;
                     continue;
                   }
+
+                st.tokenStart = currSt.tokenEnd;
                 balances[addr][ownedSlicedTokensCount[addr] +1] = st;
                 currSt.next = ownedSlicedTokensCount[addr] +1;
+                ownedSlicedTokensCount[addr] += 1;
                 return;
             }
-    
+  
             if(currSt.next == 0 && currSt.tokenEnd <= st.tokenStart) {
+                console.log( ownedSlicedTokensCount[addr] );
+                console.log('aft all out', st.tokenStart, st.tokenEnd, st.amount);
                 uint index = _addSlice(addr, st.tokenStart, st.tokenEnd, st.amount, 0);
                 currSt.next = index;
                 return;
             }
+
             current = currSt.next;
         }while(current>0);
     }
@@ -292,15 +312,17 @@ abstract contract FRC758 is IFRC758 {
          return ownedSlicedTokensCount[addr];
     }
     function _subSliceFromBalance(address addr, SlicedToken memory st) internal {
-         uint256 count = ownedSlicedTokensCount[addr];
+          uint256 count = ownedSlicedTokensCount[addr];
 
+        // 空账户
         if(count == 0) {
             revert();
         }
 
+        // 遍历链表
         uint current = headerIndex[addr];
         do {
-            SlicedToken storage currSt = balances[addr][current]; 
+            SlicedToken storage currSt = balances[addr][current]; // 表头的第一个元素
 
             // if(currSt.tokenEnd < block.timestamp) { // 清除过期的片 , 只需要重置链表头为下一个元素
             //     headerIndex[addr] = currSt.next; 
@@ -310,7 +332,9 @@ abstract contract FRC758 is IFRC758 {
                 console.log('currSt.next == 0 && currSt.tokenEnd <= st.tokenEnd');
                 revert();
             }
-            if(currSt.tokenStart == st.tokenStart && currSt.tokenEnd == st.tokenEnd) {
+
+            // console.log('nnnnnnnn', st.tokenStart, st.tokenEnd, st.amount);
+            if(currSt.tokenStart == st.tokenStart && currSt.tokenEnd == st.tokenEnd) { // 恰好匹配，不需要切片，直接减去数量搞定退出
 
                 currSt.amount -= st.amount;
                 // balances[addr][ownedSlicedTokensCount[addr]]  = currSt; //前段
@@ -318,65 +342,80 @@ abstract contract FRC758 is IFRC758 {
                 // ownedSlicedTokensCount[addr] += 1;
                 return;
             }
-            if (currSt.tokenStart >= st.tokenEnd) { 
+            if (currSt.tokenStart >= st.tokenEnd) { // 只要左边全部超过了，肯定是不合法的啊
                 console.log('currSt.tokenStart >= st.tokenEnd');
                  revert();
             }
-
-            if(currSt.next == 0 && currSt.tokenEnd < st.tokenEnd) { 
+            console.log("aaaaaa",currSt.next , currSt.tokenEnd < st.tokenEnd );
+            if(currSt.next == 0 && currSt.tokenEnd < st.tokenEnd) { // 最后一个的右边超过了
              console.log('currSt.next == 0 && currSt.tokenEnd <= st.tokenEnd');
                  revert();
             }
 
-            if(currSt.tokenStart < st.tokenEnd && currSt.tokenStart > st.tokenStart) {
+            // 不管是不是第一个。左相交都是不合法的, 因为之后的是被切过的，不可能存在左相交。
+            if(currSt.tokenStart < st.tokenEnd && currSt.tokenStart > st.tokenStart) { // 左相交 合并完 合并完 rightSlice  赋值 给st 跟下一个元素匹配
                 console.log('currSt.next == 0 && currSt.tokenEnd <= st.tokenEnd');
                 revert();
             }
 
             if(currSt.tokenStart == st.tokenStart ) {
-                if(currSt.tokenEnd > st.tokenEnd) { 
-
+                if(currSt.tokenEnd > st.tokenEnd) { // 切两段然后结束
+                    uint256 currStAmount = currSt.amount;
+                    currSt.amount -= st.amount;
+                    uint256 currStTokenEnd = currSt.tokenEnd;
+                    currSt.tokenEnd = st.tokenEnd;
+                    uint256 index = _addSlice(addr, st.tokenEnd, currStTokenEnd, currStAmount,  currSt.next);
+                    currSt.next = index;
+                    break;
                 }
+                // merge一段， 切一段给下一圈
+                currSt.amount -= st.amount;
+                st.tokenStart = currSt.tokenEnd;
+                current = currSt.next;
+                continue;
             }
 
+            // 在区间里 切成两段或者三段, 或者右超出， 切新片给下个元素
             if(currSt.tokenStart < st.tokenStart ) { 
-                currSt.tokenEnd = st.tokenStart;
+                console.log('aaaa');
+                // 处理前段
+                uint index = _addSlice(addr, currSt.tokenStart, st.tokenStart, currSt.amount, current);
+                if(current == headerIndex[addr]) { // 检查是否是第一次就遇到了前面完全空。只有第一次需要把链表头换成它
+                    headerIndex[addr] = index; 
+                }else {
+                    // 更新它的上一个片的指针为它
+                    uint _current = headerIndex[addr];
+                    while(_current > 0) {
+                        // console.log('_current:', _current, balances[addr][_current].next);
+                        if(balances[addr][_current].next == current)  {
+                            // console.log('_current111:', _current);
+                            balances[addr][_current].next = index;
+                            break;
+                        }
+                        _current = balances[addr][_current].next;
+                    }
+                }
+
+                // 处理中段
+                uint256 currStAmunt = currSt.amount;
+                uint256 currStTokenEnd = currSt.tokenEnd;
+                currSt.amount -= st.amount;
+                currSt.tokenStart = st.tokenStart;
+                // currSt.tokenEnd = st.tokenEnd;
+
+                if(currStTokenEnd >= st.tokenEnd) {  // 内包含 合并完退出，不会进入下一圈循环。 (2||3 段)
+                    if(currStTokenEnd > st.tokenEnd) {
+                         uint index = _addSlice(addr, st.tokenEnd, currStTokenEnd, currStAmunt, currSt.next);
+                         currSt.next = index;
+                    }
+                    // console.log('333333');
+                    break; //结束了，不用再匹配
+                }
+                 // 如果超过了，截取后循环
+                st.tokenStart = currStTokenEnd;
             }
             current = currSt.next;
         }while(current>0);
-    }
-    function _sliceInner(address addr, SlicedToken memory currSt, SlicedToken memory newSt ) internal  {
-         uint256 count = ownedSlicedTokensCount[addr];
-          
-          if(currSt.tokenStart == newSt.tokenStart && currSt.tokenEnd > newSt.tokenEnd) { 
-            balances[addr][count +1]  = SlicedToken({amount: currSt.amount - newSt.amount , tokenStart: currSt.tokenStart, tokenEnd: newSt.tokenStart, next: count +2});  
-            balances[addr][count +2]  = SlicedToken({amount: currSt.amount, tokenStart: newSt.tokenEnd, tokenEnd: currSt.tokenEnd, next: currSt.next}); 
-            ownedSlicedTokensCount[addr] += 2;
-          } else if( currSt.tokenStart < newSt.tokenStart && currSt.tokenEnd == newSt.tokenEnd) {
-            balances[addr][count +1]  = SlicedToken({amount: currSt.amount , tokenStart: currSt.tokenStart, tokenEnd: newSt.tokenStart, next: count +2});
-            balances[addr][count +2] = SlicedToken({amount: currSt.amount - newSt.amount , tokenStart: newSt.tokenStart, tokenEnd: currSt.tokenEnd, next: currSt.next}); 
-            ownedSlicedTokensCount[addr] += 2;
-          }else {
-            balances[addr][count +1]  = SlicedToken({amount: currSt.amount, tokenStart: currSt.tokenStart, tokenEnd: newSt.tokenStart, next: count +2}); 
-            balances[addr][count +2]  = SlicedToken({amount: currSt.amount - newSt.amount, tokenStart: newSt.tokenStart, tokenEnd: newSt.tokenEnd, next: count +3}); 
-            balances[addr][count +3]  = SlicedToken({amount: currSt.amount, tokenStart: newSt.tokenEnd, tokenEnd: currSt.tokenEnd, next: currSt.next});
-            ownedSlicedTokensCount[addr] += 3;
-          }
-    }
-    function _sliceRight(address addr, SlicedToken memory currSt, SlicedToken memory newSt ) internal {
-        uint256 count = ownedSlicedTokensCount[addr];
-
-        if(currSt.tokenStart == newSt.tokenStart && currSt.tokenEnd < newSt.tokenEnd) {
-            balances[addr][count +1]  = SlicedToken({amount: currSt.amount - newSt.amount , tokenStart: currSt.tokenStart, tokenEnd: newSt.tokenEnd, next: count +2});
-            console.log('ooooo', count+1, currSt.tokenEnd);
-             ownedSlicedTokensCount[addr] += 1;
-            newSt.tokenStart = currSt.tokenEnd;
-        }else if(currSt.tokenStart < newSt.tokenStart && currSt.tokenEnd < newSt.tokenEnd ) { 
-            balances[addr][count +1]  = SlicedToken({amount: currSt.amount, tokenStart: currSt.tokenStart, tokenEnd: newSt.tokenStart, next: count +2});  
-            balances[addr][count +2]  = SlicedToken({amount: currSt.amount - newSt.amount, tokenStart: newSt.tokenStart, tokenEnd: currSt.tokenEnd, next: count +3}); 
-             ownedSlicedTokensCount[addr] += 2;
-            newSt.tokenStart = currSt.tokenEnd; 
-        }
     }
 
     function _isContract(address addr) internal view returns (bool) {
