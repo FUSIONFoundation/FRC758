@@ -18,10 +18,6 @@ contract ExampleToken is FRC758, Controllable {
         _burn(_owner, amount, tokenStart, tokenEnd);
     }
 
-    // function safeTransferFrom(address _from, address _to, uint256 amount, uint256 tokenStart, uint256 tokenEnd) public {
-    //     safeTransferFrom(_from, _to, amount, tokenStart, tokenEnd, tokenStart, tokenEnd);
-    // }
-
     function onTimeSlicedTokenReceived(address _operator, address _from, uint256 amount, uint256 newTokenStart, uint256 newTokenEnd) public pure returns(bytes4) {
         _operator = address(0);
         _from = address(0);
