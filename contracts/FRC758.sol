@@ -84,12 +84,11 @@ abstract contract FRC758 is IFRC758 {
         require((tokenEnd >= block.timestamp) || (tokenEnd >= block.number), "blockEnd less than current blockNumber or timestamp");
     }
 
-
     function sliceOf(address from) public view override returns (uint256[] memory, uint256[] memory, uint256[] memory) {
-        _validateAddress(_owner);
+        _validateAddress(from);
        uint header = headerIndex[from];
        if(header == 0) {
-           return 0;
+           return (new uint256[](0), new uint256[](0), new uint256[](0));
        }
         uint256 count = 0;   
      
@@ -101,7 +100,7 @@ abstract contract FRC758 is IFRC758 {
                 header = st.next;
         }
         
-        uint256 allCount = ownedSlicedTokensCount[_owner];
+        uint256 allCount = ownedSlicedTokensCount[from];
 
         uint256[] memory amountArray = new uint256[](count);
         uint256[] memory tokenStartArray = new uint256[](count);
@@ -109,12 +108,12 @@ abstract contract FRC758 is IFRC758 {
         
         uint256 i = 0;
         for (uint256 ii = 0; ii < allCount; ii++) {
-            if(block.timestamp >= st.tokenEnd) {
+            if(block.timestamp >= balances[from][ii].tokenEnd) {
                continue;
             }
-            amountArray[i] = balances[_owner][ii].amount;
-            tokenStartArray[i] = balances[_owner][ii].tokenStart;
-            tokenEndArray[i] = balances[_owner][ii].tokenEnd;
+            amountArray[i] = balances[from][ii].amount;
+            tokenStartArray[i] = balances[from][ii].tokenStart;
+            tokenEndArray[i] = balances[from][ii].tokenEnd;
             i++;
         }
         

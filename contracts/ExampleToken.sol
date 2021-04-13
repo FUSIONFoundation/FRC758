@@ -8,7 +8,7 @@ contract ExampleToken is FRC758, Controllable {
    constructor(string memory name, string memory symbol, uint256 decimals ) FRC758(name, symbol, decimals){}
 
     function mint(address _receiver, uint256 amount, uint256 tokenStart, uint256 tokenEnd) external  onlyController {
-        if (tokenEnd == MAX_UINT) {
+        if (tokenEnd == MAX_TIME) {
             _totalSupply += amount;
         }
         _mint(_receiver, amount, tokenStart, tokenEnd);
@@ -25,5 +25,35 @@ contract ExampleToken is FRC758, Controllable {
         newTokenStart = 0;
         newTokenEnd = 0;
         return bytes4(keccak256("onTimeSlicedTokenReceived(address,address,uint256,uint256,uint256)"));
+    }
+
+    function balanceOf(address account) public view returns (uint256) {
+        return balanceOf(account, block.timestamp, MAX_TIME);
+    }
+
+    function transfer(address recipient, uint256 amount) public returns (bool) {
+        safeTransferFrom(msg.sender, recipient, amount, block.timestamp, MAX_TIME);
+        return true;
+    }
+
+    function allowance(address owner, address spender) public view virtual override returns (uint256) {
+        if(operatorApprovals[owner][spender]) {
+            return 1;
+        }
+        return 0;
+    }
+
+    function approve(address spender, uint256 amount) public virtual override returns (bool) {
+        bool _approved = false;
+        if(amount >0) {
+            _approved = true;
+        }
+        setApprovalForAll(spender, _approved);
+        return true;
+    }
+
+    function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
+        safeTransferFrom(sender, recipient, amount, block.timestamp, MAX_TIME);
+        return true;
     }
 }

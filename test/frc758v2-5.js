@@ -27,10 +27,11 @@ describe("safeTransferFrom", function () {
     await frc758.mint(owner.address, amount, now, now + 100);
     expect(await frc758.balanceOf(owner.address, now, now + 100)).to.equal(amount);
 
-    await frc758.safeTransferFrom(owner.address, other.address, amount, now, now + 50);
+    await frc758.safeTransferFrom(owner.address, other.address, amount, now, now + 50); //sub 0-50
 
     expect(await frc758.balanceOf(owner.address, now, now + 50)).to.equal(0);
-    expect(await frc758.balanceOf(owner.address, now + 99, now + 100)).to.equal(amount);
-  });
+    expect(await frc758.balanceOf(other.address, now, now + 50)).to.equal(amount);
+    expect(await frc758.balanceOf(owner.address, now + 50, now + 100)).to.equal(amount);
 
-});
+  })
+})

@@ -39,14 +39,19 @@ async function main() {
 
   console.log(balance0)
 
-  await exampleToken.safeTransferFrom(owner.address, other.address, 1000, now, maxTime)
-  const _balance2 = await exampleToken.balanceOf(owner.address, now, maxTime)
+  await exampleToken.safeTransferFrom(owner.address, other.address, 1000, now, now+100)
+
+  const _balance2 = await exampleToken.balanceOf(owner.address, now, now + 100);
   const balance2 = parseInt(_balance2._hex)
   if(amount-1000 != balance2) {
     console.log('错误:1', amount, balance2)
   }
   
-  console.log(balance2)
+  const _balance3 = await exampleToken.balanceOf(owner.address, now + 100, maxTime);
+  const balance3 = parseInt(_balance3._hex)
+
+  console.log("balance2", balance2);
+  console.log("balance3", balance3);
 
   // await exampleToken.burn(owner.address, amount, now, maxTime);
   // const _balance1 = await exampleToken.balanceOfFor(owner.address)
