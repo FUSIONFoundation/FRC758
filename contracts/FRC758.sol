@@ -58,7 +58,7 @@ abstract contract FRC758 is IFRC758 {
     
     uint256 internal _totalSupply;
 
-    mapping (address => uint256 ) headerIndex; // 切片的索引
+    mapping (address => uint256 ) headerIndex;
 
     function _checkRights(bool _has) internal pure {
         require(_has, "no rights to manage");
@@ -312,54 +312,43 @@ abstract contract FRC758 is IFRC758 {
          return ownedSlicedTokensCount[addr];
     }
     function _subSliceFromBalance(address addr, SlicedToken memory st) internal {
-          uint256 count = ownedSlicedTokensCount[addr];
+        uint256 count = ownedSlicedTokensCount[addr];
 
-        // 空账户
         if(count == 0) {
             revert();
         }
 
-        // 遍历链表
         uint current = headerIndex[addr];
         do {
-            SlicedToken storage currSt = balances[addr][current]; // 表头的第一个元素
+            SlicedToken storage currSt = balances[addr][current]; 
 
-            // if(currSt.tokenEnd < block.timestamp) { // 清除过期的片 , 只需要重置链表头为下一个元素
-            //     headerIndex[addr] = currSt.next; 
-            //     continue;
-            // }
+            if(currSt.tokenEnd < block.timestamp) { 
+                headerIndex[addr] = currSt.next; 
+                current = currSt.next;
+                continue;
+            }
             if(st.amount > currSt.amount) {
-                console.log('currSt.next == 0 && currSt.tokenEnd <= st.tokenEnd');
                 revert();
             }
 
-            // console.log('nnnnnnnn', st.tokenStart, st.tokenEnd, st.amount);
-            if(currSt.tokenStart == st.tokenStart && currSt.tokenEnd == st.tokenEnd) { // 恰好匹配，不需要切片，直接减去数量搞定退出
+            if (currSt.tokenStart >= st.tokenEnd) { 
+                 revert();
+            }
+            if(currSt.next == 0 && currSt.tokenEnd < st.tokenEnd) { 
+                 revert();
+            }
 
+            if(currSt.tokenStart < st.tokenEnd && currSt.tokenStart > st.tokenStart) { 
+                revert();
+            }
+
+            if(currSt.tokenStart == st.tokenStart && currSt.tokenEnd == st.tokenEnd) {
                 currSt.amount -= st.amount;
-                // balances[addr][ownedSlicedTokensCount[addr]]  = currSt; //前段
-                // balances[addr][ownedSlicedTokensCount[addr]].amount -= st.amount;
-                // ownedSlicedTokensCount[addr] += 1;
                 return;
-            }
-            if (currSt.tokenStart >= st.tokenEnd) { // 只要左边全部超过了，肯定是不合法的啊
-                console.log('currSt.tokenStart >= st.tokenEnd');
-                 revert();
-            }
-            console.log("aaaaaa",currSt.next , currSt.tokenEnd < st.tokenEnd );
-            if(currSt.next == 0 && currSt.tokenEnd < st.tokenEnd) { // 最后一个的右边超过了
-             console.log('currSt.next == 0 && currSt.tokenEnd <= st.tokenEnd');
-                 revert();
-            }
-
-            // 不管是不是第一个。左相交都是不合法的, 因为之后的是被切过的，不可能存在左相交。
-            if(currSt.tokenStart < st.tokenEnd && currSt.tokenStart > st.tokenStart) { // 左相交 合并完 合并完 rightSlice  赋值 给st 跟下一个元素匹配
-                console.log('currSt.next == 0 && currSt.tokenEnd <= st.tokenEnd');
-                revert();
             }
 
             if(currSt.tokenStart == st.tokenStart ) {
-                if(currSt.tokenEnd > st.tokenEnd) { // 切两段然后结束
+                if(currSt.tokenEnd > st.tokenEnd) {
                     uint256 currStAmount = currSt.amount;
                     currSt.amount -= st.amount;
                     uint256 currStTokenEnd = currSt.tokenEnd;
@@ -368,27 +357,23 @@ abstract contract FRC758 is IFRC758 {
                     currSt.next = index;
                     break;
                 }
-                // merge一段， 切一段给下一圈
                 currSt.amount -= st.amount;
                 st.tokenStart = currSt.tokenEnd;
                 current = currSt.next;
                 continue;
             }
 
-            // 在区间里 切成两段或者三段, 或者右超出， 切新片给下个元素
             if(currSt.tokenStart < st.tokenStart ) { 
-                console.log('aaaa');
-                // 处理前段
                 uint index = _addSlice(addr, currSt.tokenStart, st.tokenStart, currSt.amount, current);
-                if(current == headerIndex[addr]) { // 检查是否是第一次就遇到了前面完全空。只有第一次需要把链表头换成它
+                if(current == headerIndex[addr]) { 
                     headerIndex[addr] = index; 
                 }else {
-                    // 更新它的上一个片的指针为它
+                    
                     uint _current = headerIndex[addr];
                     while(_current > 0) {
-                        // console.log('_current:', _current, balances[addr][_current].next);
+                        
                         if(balances[addr][_current].next == current)  {
-                            // console.log('_current111:', _current);
+                           
                             balances[addr][_current].next = index;
                             break;
                         }
@@ -401,17 +386,14 @@ abstract contract FRC758 is IFRC758 {
                 uint256 currStTokenEnd = currSt.tokenEnd;
                 currSt.amount -= st.amount;
                 currSt.tokenStart = st.tokenStart;
-                // currSt.tokenEnd = st.tokenEnd;
 
-                if(currStTokenEnd >= st.tokenEnd) {  // 内包含 合并完退出，不会进入下一圈循环。 (2||3 段)
+                if(currStTokenEnd >= st.tokenEnd) {
                     if(currStTokenEnd > st.tokenEnd) {
                          uint index = _addSlice(addr, st.tokenEnd, currStTokenEnd, currStAmunt, currSt.next);
                          currSt.next = index;
                     }
-                    // console.log('333333');
-                    break; //结束了，不用再匹配
+                    break; 
                 }
-                 // 如果超过了，截取后循环
                 st.tokenStart = currStTokenEnd;
             }
             current = currSt.next;

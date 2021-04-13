@@ -15,7 +15,7 @@ interface IFRC758 {
     function isApprovedForAll(address _owner, address _operator) external view returns (bool);
 
     function transferFrom(address _from, address _to, uint256 amount, uint256 tokenStart, uint256 tokenEnd) external;
-    // function safeTransferFrom(address _from, address _to, uint256 amount, uint256 tokenStart, uint256 tokenEnd, uint256) external;
+
     function safeTransferFrom(address _from, address _to, uint256 amount, uint256 tokenStart, uint256 tokenEnd) external;
 
     function totalSupply() external view returns (uint256);
