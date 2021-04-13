@@ -2,13 +2,13 @@ const { expect } = require("chai");
 
 describe("FRC758", function () {
 
-  // ————————————mint4———————————— 
+  // ————————————mint 4 frames———————————— 
   it("0-10 10-15 15-20 20-25", async function () {
     const [owner, other] = await ethers.getSigners();
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = 0;
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -34,7 +34,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = 0;
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -77,7 +77,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = 0;
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -115,7 +115,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = 0;
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
