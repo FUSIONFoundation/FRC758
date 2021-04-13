@@ -8,7 +8,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now1 = +new Date();
+    const now1 = Date.parse(new Date()) / 1000;
     const now2 = now1 + 10;
     const now3 = now1 + 10;
     const now4 = now1 + 15;
@@ -36,7 +36,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -60,7 +60,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -80,7 +80,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -104,7 +104,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -124,7 +124,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -141,7 +141,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -165,7 +165,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -189,7 +189,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -213,7 +213,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -237,7 +237,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -266,7 +266,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -290,7 +290,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -310,7 +310,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -334,7 +334,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -358,7 +358,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -387,7 +387,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -411,7 +411,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -441,7 +441,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -465,7 +465,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -485,7 +485,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -509,7 +509,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -529,7 +529,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -553,7 +553,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -578,7 +578,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -608,7 +608,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;

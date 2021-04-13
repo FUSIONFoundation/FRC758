@@ -7,7 +7,7 @@ describe("FRC758", function () {
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
 
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount = 1000;
     await frc758.mint(owner.address, amount, now, now + 100);
     expect(await frc758.balanceOf(owner.address, now, now + 100)).to.equal(amount);
@@ -21,7 +21,7 @@ describe("FRC758", function () {
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
 
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     await frc758.mint(owner.address, amount1, now, now + 10);
@@ -37,7 +37,7 @@ describe("FRC758", function () {
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
 
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     await frc758.mint(owner.address, amount1, now, now + 10);
@@ -56,7 +56,7 @@ describe("FRC758", function () {
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
 
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     await frc758.mint(owner.address, amount1, now, now + 10);
@@ -75,7 +75,7 @@ describe("FRC758", function () {
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
 
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     await frc758.mint(owner.address, amount1, now, now + 10);
@@ -91,7 +91,7 @@ describe("FRC758", function () {
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
 
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     await frc758.mint(owner.address, amount1, now, now + 10);
@@ -110,7 +110,7 @@ describe("FRC758", function () {
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
 
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     await frc758.mint(owner.address, amount1, now, now + 10);
@@ -129,7 +129,7 @@ describe("FRC758", function () {
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
 
     await frc758.deployed();
-    const now = +new Date();
+    const now = Date.parse(new Date()) / 1000;
     const amount1 = 10;
     const amount2 = 20;
     await frc758.mint(owner.address, amount1, now, now + 10);
