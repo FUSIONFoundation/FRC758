@@ -205,7 +205,6 @@ abstract contract FRC758 is IFRC758 {
             }
     
             if (currSt.tokenStart >= st.tokenEnd) {
-               console.log('bef all out');
                 uint256 index = _addSlice(addr, st.tokenStart, st.tokenEnd, st.amount, current);
                 if(current == headerIndex[addr]) {
                     headerIndex[addr] = index; 
@@ -214,8 +213,6 @@ abstract contract FRC758 is IFRC758 {
             }
 
             if(currSt.tokenStart < st.tokenEnd && currSt.tokenStart > st.tokenStart) {
-                        console.log('bef out');
-
                 uint index = _addSlice(addr, st.tokenStart, currSt.tokenStart, st.amount, current);
                 if(current == headerIndex[addr]) {
                     headerIndex[addr] = index;  
@@ -263,7 +260,6 @@ abstract contract FRC758 is IFRC758 {
                 }
             }
             if( currSt.tokenEnd > st.tokenStart && currSt.tokenEnd >= st.tokenStart) {
-                console.log('aft out');
                   uint256 currStTokenEnd = currSt.tokenEnd;
                   if(currSt.tokenStart < st.tokenStart) {
                     currSt.tokenEnd = st.tokenStart; 
@@ -291,8 +287,6 @@ abstract contract FRC758 is IFRC758 {
             }
   
             if(currSt.next == 0 && currSt.tokenEnd <= st.tokenStart) {
-                console.log( ownedSlicedTokensCount[addr] );
-                console.log('aft all out', st.tokenStart, st.tokenEnd, st.amount);
                 uint index = _addSlice(addr, st.tokenStart, st.tokenEnd, st.amount, 0);
                 currSt.next = index;
                 return;
@@ -381,7 +375,6 @@ abstract contract FRC758 is IFRC758 {
                     }
                 }
 
-                // 处理中段
                 uint256 currStAmunt = currSt.amount;
                 uint256 currStTokenEnd = currSt.tokenEnd;
                 currSt.amount -= st.amount;
