@@ -8,7 +8,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = 0;
+    const now = +new Date();
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -34,7 +34,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = 0;
+    const now = +new Date();
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -77,7 +77,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = 0;
+    const now = +new Date();
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
@@ -115,7 +115,7 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ExampleToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18);
     await frc758.deployed();
-    const now = 0;
+    const now = +new Date();
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
