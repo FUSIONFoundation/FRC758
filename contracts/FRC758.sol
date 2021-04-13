@@ -85,19 +85,37 @@ abstract contract FRC758 is IFRC758 {
     }
 
 
-    function sliceOf(address _owner) public view override returns (uint256[] memory, uint256[] memory, uint256[] memory) {
+    function sliceOf(address from) public view override returns (uint256[] memory, uint256[] memory, uint256[] memory) {
         _validateAddress(_owner);
-        uint256 count = ownedSlicedTokensCount[_owner];
-        //SlicedToken[] memory tokens = new SlicedToken[](count);
+       uint header = headerIndex[from];
+       if(header == 0) {
+           return 0;
+       }
+        uint256 count = 0;   
+     
+        while(header > 0) {
+                SlicedToken memory st = balances[from][header];
+                if(block.timestamp < st.tokenEnd) {
+                    count++;
+                }
+                header = st.next;
+        }
         
+        uint256 allCount = ownedSlicedTokensCount[_owner];
+
         uint256[] memory amountArray = new uint256[](count);
         uint256[] memory tokenStartArray = new uint256[](count);
         uint256[] memory tokenEndArray = new uint256[](count);
         
-        for (uint256 ii = 0; ii < count; ii++) {
-            amountArray[ii] = balances[_owner][ii].amount;
-            tokenStartArray[ii] = balances[_owner][ii].tokenStart;
-            tokenEndArray[ii] = balances[_owner][ii].tokenEnd;
+        uint256 i = 0;
+        for (uint256 ii = 0; ii < allCount; ii++) {
+            if(block.timestamp >= st.tokenEnd) {
+               continue;
+            }
+            amountArray[i] = balances[_owner][ii].amount;
+            tokenStartArray[i] = balances[_owner][ii].tokenStart;
+            tokenEndArray[i] = balances[_owner][ii].tokenEnd;
+            i++;
         }
         
         return (amountArray, tokenStartArray, tokenEndArray);
