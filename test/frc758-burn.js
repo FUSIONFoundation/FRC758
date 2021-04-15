@@ -23,11 +23,11 @@ describe("FRC758", function () {
 
     await frc758.burn(owner.address, 5, now1 + 5, now1 + 12);
 
-    expect(await frc758.balanceOf(owner.address, now1, now2)).to.equal(5);
-    // expect(await frc758.balanceOf(owner.address, now1, now4)).to.equal(5);
-    expect(await frc758.balanceOf(owner.address, now1, now6)).to.equal(5);
-    expect(await frc758.balanceOf(owner.address, now2, now4)).to.equal(15);
-    expect(await frc758.balanceOf(owner.address, now2, now6)).to.equal(15);
-    expect(await frc758.balanceOf(owner.address, now4, now6)).to.equal(30);
+    expect(await frc758.timeBalanceOf(owner.address, now1, now2)).to.equal(5);
+    // expect(await frc758.timeBalanceOf(owner.address, now1, now4)).to.equal(5);
+    expect(await frc758.timeBalanceOf(owner.address, now1, now6)).to.equal(5);
+    expect(await frc758.timeBalanceOf(owner.address, now2, now4)).to.equal(15);
+    expect(await frc758.timeBalanceOf(owner.address, now2, now6)).to.equal(15);
+    expect(await frc758.timeBalanceOf(owner.address, now4, now6)).to.equal(30);
   });
 });

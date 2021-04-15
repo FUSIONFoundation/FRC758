@@ -85,12 +85,14 @@ abstract contract FRC758 is IFRC758 {
     }
 
     function sliceOf(address from) public view override returns (uint256[] memory, uint256[] memory, uint256[] memory) {
+        console.log('ownedSlicedTokensCount', ownedSlicedTokensCount[from]);
         _validateAddress(from);
        uint header = headerIndex[from];
+        console.log('header', header);
        if(header == 0) {
            return (new uint256[](0), new uint256[](0), new uint256[](0));
        }
-        uint256 count = 0;   
+        uint256 count = 0;
      
         while(header > 0) {
                 SlicedToken memory st = balances[from][header];
@@ -99,15 +101,13 @@ abstract contract FRC758 is IFRC758 {
                 }
                 header = st.next;
         }
-        
         uint256 allCount = ownedSlicedTokensCount[from];
-
         uint256[] memory amountArray = new uint256[](count);
         uint256[] memory tokenStartArray = new uint256[](count);
         uint256[] memory tokenEndArray = new uint256[](count);
         
         uint256 i = 0;
-        for (uint256 ii = 0; ii < allCount; ii++) {
+        for (uint256 ii = 1; ii < allCount+1; ii++) {
             if(block.timestamp >= balances[from][ii].tokenEnd) {
                continue;
             }
@@ -120,7 +120,7 @@ abstract contract FRC758 is IFRC758 {
         return (amountArray, tokenStartArray, tokenEndArray);
     }
 
-    function balanceOf(address from, uint256 tokenStart, uint256 tokenEnd) public override view returns(uint256) {
+    function timeBalanceOf(address from, uint256 tokenStart, uint256 tokenEnd) public override view returns(uint256) {
        if (tokenStart >= tokenEnd) {
            return 0;
        }
@@ -168,7 +168,22 @@ abstract contract FRC758 is IFRC758 {
         return _spender == _from || isApprovedForAll(_from, _spender);
     }
 
-    function transferFrom(address _from, address _to, uint256 amount, uint256 tokenStart, uint256 tokenEnd) public override {
+    // function transferFrom(address _from, address _to, uint256 amount, uint256 tokenStart, uint256 tokenEnd) public override {
+    //     _validateAddress(_from);
+    //     _validateAddress(_to);
+    //     _validateAmount(amount);
+    //     _checkRights(isApprovedOrOwner(msg.sender, _from));
+    //     require(_from != _to, "no sending to yourself");
+
+    //     SlicedToken memory st = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
+    //     _subSliceFromBalance(_from, st);
+    //     _addSliceToBalance(_to, st);
+    //     emit Transfer(_from, _to, amount, tokenStart, tokenEnd);
+    // }
+
+
+    function safeTransferFrom(address _from, address _to, uint256 amount, uint256 tokenStart, uint256 tokenEnd) public override {
+		require(checkAndCallSafeTransfer(_from, _to, amount, tokenStart, tokenEnd), "can't make safe transfer");
         _validateAddress(_from);
         _validateAddress(_to);
         _validateAmount(amount);
@@ -179,12 +194,6 @@ abstract contract FRC758 is IFRC758 {
         _subSliceFromBalance(_from, st);
         _addSliceToBalance(_to, st);
         emit Transfer(_from, _to, amount, tokenStart, tokenEnd);
-    }
-
-
-    function safeTransferFrom(address _from, address _to, uint256 amount, uint256 tokenStart, uint256 tokenEnd) public override {
-        transferFrom(_from, _to, amount, tokenStart, tokenEnd);
-        require(checkAndCallSafeTransfer(_from, _to, amount, tokenStart, tokenEnd), "can't make safe transfer");
     }
 
     function _mint(address _from,  uint256 amount, uint256 tokenStart, uint256 tokenEnd) internal {

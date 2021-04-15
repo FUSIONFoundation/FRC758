@@ -8,13 +8,10 @@ interface IFRC758 {
 
     function sliceOf(address _owner) external view returns (uint256[] memory, uint256[] memory, uint256[] memory);
     
-    function balanceOf(address _owner, uint256 startTime, uint256 endTime) external view returns (uint256);
-    // function balanceOfFor(address _owner) external view returns (uint256);
+    function timeBalanceOf(address _owner, uint256 tokenStart, uint256 tokenEnd) external view returns (uint256);
 
     function setApprovalForAll(address _operator, bool _approved) external;
     function isApprovedForAll(address _owner, address _operator) external view returns (bool);
-
-    function transferFrom(address _from, address _to, uint256 amount, uint256 tokenStart, uint256 tokenEnd) external;
 
     function safeTransferFrom(address _from, address _to, uint256 amount, uint256 tokenStart, uint256 tokenEnd) external;
 

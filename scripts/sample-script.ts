@@ -29,29 +29,38 @@ async function main() {
 
   const amount = 190000000000000
   
-  await exampleToken.mint(owner.address, amount, now, maxTime);
+  await exampleToken.mint(owner.address, amount, now+10000, maxTime);
+  await exampleToken.mint(owner.address, amount, now+20000, maxTime);
 
-  const _balance0 = await exampleToken.balanceOf(owner.address, now, maxTime);
-  const balance0 = parseInt(_balance0._hex)
-  if(amount != balance0) {
-    console.log('错误:', amount, balance0)
-  }
-
-  console.log(balance0)
-
-  await exampleToken.safeTransferFrom(owner.address, other.address, 1000, now, now+100)
-
-  const _balance2 = await exampleToken.balanceOf(owner.address, now, now + 100);
+  const _balance2 = await exampleToken.balanceOf(owner.address, now, maxTime);
   const balance2 = parseInt(_balance2._hex)
-  if(amount-1000 != balance2) {
-    console.log('错误:1', amount, balance2)
-  }
-  
-  const _balance3 = await exampleToken.balanceOf(owner.address, now + 100, maxTime);
-  const balance3 = parseInt(_balance3._hex)
 
-  console.log("balance2", balance2);
-  console.log("balance3", balance3);
+  console.log(balance2)
+
+  const slice = await exampleToken.sliceOf(owner.address);
+  console.log(slice);
+
+  // const _balance0 = await exampleToken.balanceOf(owner.address, now, maxTime);
+  // const balance0 = parseInt(_balance0._hex)
+  // if(amount != balance0) {
+  //   console.log('错误:', amount, balance0)
+  // }
+
+  // console.log(balance0)
+
+  // await exampleToken.safeTransferFrom(owner.address, other.address, 1000, now, now+100)
+
+  // const _balance2 = await exampleToken.balanceOf(owner.address, now, now + 100);
+  // const balance2 = parseInt(_balance2._hex)
+  // if(amount-1000 != balance2) {
+  //   console.log('错误:1', amount, balance2)
+  // }
+  
+  // const _balance3 = await exampleToken.balanceOf(owner.address, now + 100, maxTime);
+  // const balance3 = parseInt(_balance3._hex)
+
+  // console.log("balance2", balance2);
+  // console.log("balance3", balance3);
 
   // await exampleToken.burn(owner.address, amount, now, maxTime);
   // const _balance1 = await exampleToken.balanceOfFor(owner.address)

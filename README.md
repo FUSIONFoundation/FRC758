@@ -30,10 +30,12 @@ In this case, the amount from T2 to T3 is 2, the amount from T3 to T4 is 12, the
 
 ### Important API
 
-The mint method adds tokenStart and tokenEnd on the basis of erc20, representing the start time and end time of the token
 
 
 #### Mint
+
+The mint method adds tokenStart and tokenEnd on the basis of erc20, representing the start time and end time of the token
+
 ```solidity
     function _mint(address _from,  uint256 amount, uint256 tokenStart, uint256 tokenEnd);
 ```
@@ -42,12 +44,14 @@ The mint method adds tokenStart and tokenEnd on the basis of erc20, representing
 
 Added start time and end time
 
-```
+```solidity
     function safeTransferFrom(address _from, address _to, uint256 amount, uint256 tokenStart, uint256 tokenEnd) 
 ```
 
+#### BalanceOf
+
 Added start time and end time
 
-```
+```solidity
     function balanceOf(address from, uint256 tokenStart, uint256 tokenEnd) public override view returns(uint256) 
 ```

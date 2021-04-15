@@ -3,15 +3,18 @@ pragma solidity =0.7.6;
 
 import './FRC758.sol';
 import './Controllable.sol';
+import "@nomiclabs/buidler/console.sol";
+
 contract ExampleToken is FRC758, Controllable {
 
-   constructor(string memory name, string memory symbol, uint256 decimals ) FRC758(name, symbol, decimals){}
+    uint256 private constant TotalLimit = 814670050000000000000000000;
+    
+    constructor(string memory name, string memory symbol, uint256 decimals ) FRC758(name, symbol, decimals){}
 
-    function mint(address _receiver, uint256 amount, uint256 tokenStart, uint256 tokenEnd) external  onlyController {
-        if (tokenEnd == MAX_TIME) {
-            _totalSupply += amount;
-        }
-        _mint(_receiver, amount, tokenStart, tokenEnd);
+	function mint(address _receiver, uint256 amount) external onlyController {
+		require((amount + _totalSupply) <= TotalLimit, "can not mint more tokens");
+        _mint(_receiver, amount, block.timestamp, MAX_TIME);
+		_totalSupply += amount;
     }
 
     function burn(address _owner, uint256 amount, uint256 tokenStart, uint256 tokenEnd) external onlyController {
@@ -28,7 +31,7 @@ contract ExampleToken is FRC758, Controllable {
     }
 
     function balanceOf(address account) public view returns (uint256) {
-        return balanceOf(account, block.timestamp, MAX_TIME);
+        return timeBalanceOf(account, block.timestamp, MAX_TIME);
     }
 
     function transfer(address recipient, uint256 amount) public returns (bool) {
@@ -36,14 +39,14 @@ contract ExampleToken is FRC758, Controllable {
         return true;
     }
 
-    function allowance(address owner, address spender) public view virtual override returns (uint256) {
+    function allowance(address owner, address spender) public view returns (uint256) {
         if(operatorApprovals[owner][spender]) {
             return 1;
         }
         return 0;
     }
 
-    function approve(address spender, uint256 amount) public virtual override returns (bool) {
+    function approve(address spender, uint256 amount) public returns (bool) {
         bool _approved = false;
         if(amount >0) {
             _approved = true;
@@ -52,7 +55,7 @@ contract ExampleToken is FRC758, Controllable {
         return true;
     }
 
-    function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
+    function transferFrom(address sender, address recipient, uint256 amount) public returns (bool) {
         safeTransferFrom(sender, recipient, amount, block.timestamp, MAX_TIME);
         return true;
     }

@@ -10,6 +10,6 @@ describe("FRC758", function () {
     const now = Date.parse(new Date()) / 1000;
     const amount = 1000;
     await frc758.mint(owner.address, amount, now, now + 100);
-    expect(await frc758.balanceOf(owner.address, now, now + 100)).to.equal(amount);
+    expect(await frc758.timetimeBalanceOf(owner.address, now, now + 100)).to.equal(amount);
   });
 });
