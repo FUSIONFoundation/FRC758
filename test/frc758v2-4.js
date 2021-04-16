@@ -2,7 +2,7 @@ const { expect } = require("chai");
 
 describe("FRC758", function () {
 
-  // ————————————mint 4 frames———————————— 
+  // ————————————mintTimeSlice 4 frames———————————— 
   it("0-10 10-15 15-20 20-25", async function () {
     const [owner, other] = await ethers.getSigners();
     const FRC758 = await ethers.getContractFactory("ExampleToken");
@@ -13,11 +13,11 @@ describe("FRC758", function () {
     const amount2 = 20;
     const amount3 = 30;
     const amount4 = 40;
-    await frc758.mint(owner.address, amount1, now, now + 10);
-    await frc758.mint(owner.address, amount2, now + 10, now + 15);
-    await frc758.mint(owner.address, amount3, now + 15, now + 20);
-    await frc758.mint(owner.address, amount4, now + 20, now + 25);
-    expect(await frc758.timetimeBalanceOf(owner.address, now, now + 10)).to.equal(10);
+    await frc758.mintTimeSlice(owner.address, amount1, now, now + 10);
+    await frc758.mintTimeSlice(owner.address, amount2, now + 10, now + 15);
+    await frc758.mintTimeSlice(owner.address, amount3, now + 15, now + 20);
+    await frc758.mintTimeSlice(owner.address, amount4, now + 20, now + 25);
+    expect(await frc758.timeBalanceOf(owner.address, now, now + 10)).to.equal(10);
     expect(await frc758.timeBalanceOf(owner.address, now, now + 15)).to.equal(10);
     expect(await frc758.timeBalanceOf(owner.address, now, now + 20)).to.equal(10);
     expect(await frc758.timeBalanceOf(owner.address, now, now + 25)).to.equal(10);
@@ -39,10 +39,10 @@ describe("FRC758", function () {
     const amount2 = 20;
     const amount3 = 30;
     const amount4 = 40;
-    await frc758.mint(owner.address, amount1, now, now + 10);
-    await frc758.mint(owner.address, amount2, now + 12, now + 15);
-    await frc758.mint(owner.address, amount3, now + 17, now + 20);
-    await frc758.mint(owner.address, amount4, now + 19, now + 25);
+    await frc758.mintTimeSlice(owner.address, amount1, now, now + 10);
+    await frc758.mintTimeSlice(owner.address, amount2, now + 12, now + 15);
+    await frc758.mintTimeSlice(owner.address, amount3, now + 17, now + 20);
+    await frc758.mintTimeSlice(owner.address, amount4, now + 19, now + 25);
     expect(await frc758.timeBalanceOf(owner.address, now, now + 10)).to.equal(10);
     expect(await frc758.timeBalanceOf(owner.address, now, now + 12)).to.equal(0);
     expect(await frc758.timeBalanceOf(owner.address, now, now + 15)).to.equal(0);
@@ -82,10 +82,10 @@ describe("FRC758", function () {
     const amount2 = 20;
     const amount3 = 30;
     const amount4 = 40;
-    await frc758.mint(owner.address, amount1, now, now + 10);
-    await frc758.mint(owner.address, amount2, now + 12, now + 15);
-    await frc758.mint(owner.address, amount3, now + 17, now + 20);
-    await frc758.mint(owner.address, amount4, now + 19, now + 20);
+    await frc758.mintTimeSlice(owner.address, amount1, now, now + 10);
+    await frc758.mintTimeSlice(owner.address, amount2, now + 12, now + 15);
+    await frc758.mintTimeSlice(owner.address, amount3, now + 17, now + 20);
+    await frc758.mintTimeSlice(owner.address, amount4, now + 19, now + 20);
     expect(await frc758.timeBalanceOf(owner.address, now, now + 10)).to.equal(10);
     expect(await frc758.timeBalanceOf(owner.address, now, now + 15)).to.equal(0);
     expect(await frc758.timeBalanceOf(owner.address, now, now + 17)).to.equal(0);
@@ -120,10 +120,10 @@ describe("FRC758", function () {
     const amount2 = 20;
     const amount3 = 30;
     const amount4 = 40;
-    await frc758.mint(owner.address, amount1, now, now + 10);
-    await frc758.mint(owner.address, amount2, now + 12, now + 15);
-    await frc758.mint(owner.address, amount3, now + 17, now + 20);
-    await frc758.mint(owner.address, amount4, now + 19, now + 20);
+    await frc758.mintTimeSlice(owner.address, amount1, now, now + 10);
+    await frc758.mintTimeSlice(owner.address, amount2, now + 12, now + 15);
+    await frc758.mintTimeSlice(owner.address, amount3, now + 17, now + 20);
+    await frc758.mintTimeSlice(owner.address, amount4, now + 19, now + 20);
     expect(await frc758.timeBalanceOf(owner.address, now, now + 10)).to.equal(10);
     expect(await frc758.timeBalanceOf(owner.address, now, now + 15)).to.equal(0);
     expect(await frc758.timeBalanceOf(owner.address, now, now + 17)).to.equal(0);

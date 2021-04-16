@@ -2,7 +2,7 @@ const { expect } = require("chai");
 
 describe("FRC758", function () {
 
-  // ————————————mint frames and burn———————————— 
+  // ————————————mintTimeSlice frames and burn———————————— 
   it("0-10 10-15 15-20", async function () {
     const [owner, other] = await ethers.getSigners();
     const FRC758 = await ethers.getContractFactory("ExampleToken");
@@ -17,11 +17,11 @@ describe("FRC758", function () {
     const amount1 = 10;
     const amount2 = 20;
     const amount3 = 30;
-    await frc758.mint(owner.address, amount1, now1, now2);
-    await frc758.mint(owner.address, amount2, now3, now4);
-    await frc758.mint(owner.address, amount3, now5, now6);
+    await frc758.mintTimeSlice(owner.address, amount1, now1, now2);
+    await frc758.mintTimeSlice(owner.address, amount2, now3, now4);
+    await frc758.mintTimeSlice(owner.address, amount3, now5, now6);
 
-    await frc758.burn(owner.address, 5, now1 + 5, now1 + 12);
+    await frc758.burnTimeSlice(owner.address, 5, now1 + 5, now1 + 12);
 
     expect(await frc758.timeBalanceOf(owner.address, now1, now2)).to.equal(5);
     // expect(await frc758.timeBalanceOf(owner.address, now1, now4)).to.equal(5);
