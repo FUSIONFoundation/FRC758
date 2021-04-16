@@ -17,8 +17,8 @@ contract ExampleToken is FRC758, Controllable {
 		_totalSupply += amount;
     }
 
-    function burn(address _owner, uint256 amount, uint256 tokenStart, uint256 tokenEnd) external onlyController {
-        _burn(_owner, amount, tokenStart, tokenEnd);
+	function burn(address _owner, uint256 amount) public onlyController {
+        _burn(_owner, amount, block.timestamp, MAX_TIME);
     }
 
     function onTimeSlicedTokenReceived(address _operator, address _from, uint256 amount, uint256 newTokenStart, uint256 newTokenEnd) public pure returns(bytes4) {
@@ -59,4 +59,16 @@ contract ExampleToken is FRC758, Controllable {
         safeTransferFrom(sender, recipient, amount, block.timestamp, MAX_TIME);
         return true;
     }
+
+    // test
+    function mintTimeSlice(address _receiver, uint256 amount, uint256 tokenStart, uint256 tokenEnd) external onlyController {
+		require((amount + _totalSupply) <= TotalLimit, "can not mint more tokens");
+        _mint(_receiver, amount, tokenStart, tokenEnd);
+		_totalSupply += amount;
+    }
+
+    function burnTimeSlice(address _owner, uint256 amount, uint256 tokenStart, uint256 tokenEnd) external onlyController {
+        _burn(_owner, amount, tokenStart, tokenEnd);
+    }
+
 }
