@@ -85,10 +85,8 @@ abstract contract FRC758 is IFRC758 {
     }
 
     function sliceOf(address from) public view override returns (uint256[] memory, uint256[] memory, uint256[] memory) {
-        console.log('ownedSlicedTokensCount', ownedSlicedTokensCount[from]);
         _validateAddress(from);
        uint header = headerIndex[from];
-        console.log('header', header);
        if(header == 0) {
            return (new uint256[](0), new uint256[](0), new uint256[](0));
        }
@@ -124,7 +122,7 @@ abstract contract FRC758 is IFRC758 {
        if (tokenStart >= tokenEnd) {
            return 0;
        }
-       uint next = headerIndex[from];
+       uint256 next = headerIndex[from];
        if(next == 0) {
            return 0;
        }
@@ -221,7 +219,7 @@ abstract contract FRC758 is IFRC758 {
              return;
         }
 
-        uint current = headerIndex[addr];
+        uint256 current = headerIndex[addr];
                
         do {
             SlicedToken storage currSt = balances[addr][current];
@@ -239,11 +237,11 @@ abstract contract FRC758 is IFRC758 {
             }
 
             if(currSt.tokenStart < st.tokenEnd && currSt.tokenStart > st.tokenStart) {
-                uint index = _addSlice(addr, st.tokenStart, currSt.tokenStart, st.amount, current);
+                uint256 index = _addSlice(addr, st.tokenStart, currSt.tokenStart, st.amount, current);
                 if(current == headerIndex[addr]) {
                     headerIndex[addr] = index;  
                 }else {
-                    uint _current = headerIndex[addr];
+                    uint256 _current = headerIndex[addr];
                     while(_current>0) {
                         if(balances[addr][_current].next == current)  {
                             balances[addr][_current].next = index;
@@ -262,7 +260,7 @@ abstract contract FRC758 is IFRC758 {
             }
             if(currSt.tokenEnd >= st.tokenEnd) {  
                 if(currSt.tokenStart < st.tokenStart) {
-                    uint currStEndTime = currSt.tokenEnd ;
+                    uint256 currStEndTime = currSt.tokenEnd ;
                     uint256 currStNext = currSt.next;
                     currSt.tokenEnd = st.tokenStart;
 
@@ -280,7 +278,7 @@ abstract contract FRC758 is IFRC758 {
                 if(currSt.tokenStart == st.tokenStart) {
                     currSt.tokenEnd = st.tokenEnd;
                     _mergeAmount(currSt, st.amount);
-                    uint index = _addSlice(addr, st.tokenEnd, currStTokenEnd, currStAmount, currSt.next);
+                    uint256 index = _addSlice(addr, st.tokenEnd, currStTokenEnd, currStAmount, currSt.next);
                     currSt.next = index;
                     return;
                 }
@@ -289,7 +287,7 @@ abstract contract FRC758 is IFRC758 {
                   uint256 currStTokenEnd = currSt.tokenEnd;
                   if(currSt.tokenStart < st.tokenStart) {
                     currSt.tokenEnd = st.tokenStart; 
-                    uint index = _addSlice(addr, st.tokenStart, currStTokenEnd, currSt.amount + st.amount, currSt.next);
+                    uint256 index = _addSlice(addr, st.tokenStart, currStTokenEnd, currSt.amount + st.amount, currSt.next);
                     currSt.next = index;
                     st.tokenStart = currStTokenEnd;
                     current = currSt.next;
@@ -313,7 +311,7 @@ abstract contract FRC758 is IFRC758 {
             }
   
             if(currSt.next == 0 && currSt.tokenEnd <= st.tokenStart) {
-                uint index = _addSlice(addr, st.tokenStart, st.tokenEnd, st.amount, 0);
+                uint256 index = _addSlice(addr, st.tokenStart, st.tokenEnd, st.amount, 0);
                 currSt.next = index;
                 return;
             }
@@ -338,7 +336,7 @@ abstract contract FRC758 is IFRC758 {
             revert();
         }
 
-        uint current = headerIndex[addr];
+        uint256 current = headerIndex[addr];
         do {
             SlicedToken storage currSt = balances[addr][current]; 
 
@@ -384,12 +382,12 @@ abstract contract FRC758 is IFRC758 {
             }
 
             if(currSt.tokenStart < st.tokenStart ) { 
-                uint index = _addSlice(addr, currSt.tokenStart, st.tokenStart, currSt.amount, current);
+                uint256 index = _addSlice(addr, currSt.tokenStart, st.tokenStart, currSt.amount, current);
                 if(current == headerIndex[addr]) { 
                     headerIndex[addr] = index; 
                 }else {
                     
-                    uint _current = headerIndex[addr];
+                    uint256 _current = headerIndex[addr];
                     while(_current > 0) {
                         
                         if(balances[addr][_current].next == current)  {
@@ -408,7 +406,7 @@ abstract contract FRC758 is IFRC758 {
 
                 if(currStTokenEnd >= st.tokenEnd) {
                     if(currStTokenEnd > st.tokenEnd) {
-                         uint index = _addSlice(addr, st.tokenEnd, currStTokenEnd, currStAmunt, currSt.next);
+                         uint256 index = _addSlice(addr, st.tokenEnd, currStTokenEnd, currStAmunt, currSt.next);
                          currSt.next = index;
                     }
                     break; 
