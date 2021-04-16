@@ -40,6 +40,12 @@ The mint method adds tokenStart and tokenEnd on the basis of erc20, representing
     function _mint(address _from,  uint256 amount, uint256 tokenStart, uint256 tokenEnd);
 ```
 
+### Burn
+
+```solidity
+    function _burn(address _owner, uint256 amount, uint256 tokenStart, uint256 tokenEnd);
+```
+
 #### TransferFrom
 
 Added start time and end time
@@ -54,4 +60,21 @@ Added start time and end time
 
 ```solidity
     function balanceOf(address from, uint256 tokenStart, uint256 tokenEnd) public override view returns(uint256) 
+```
+
+### Deploy
+
+```shell
+npm i
+
+# deplay localhost
+npm deploy
+
+```
+If you need deploy to other, please edit this file scripts/sample-script.ts
+
+### Test
+
+```shell
+npm test
 ```
