@@ -60,7 +60,6 @@ contract ExampleToken is FRC758, Controllable {
         return true;
     }
 
-    // test
     function mintTimeSlice(address _receiver, uint256 amount, uint256 tokenStart, uint256 tokenEnd) external onlyController {
 		require((amount + _totalSupply) <= TotalLimit, "can not mint more tokens");
         _mint(_receiver, amount, tokenStart, tokenEnd);

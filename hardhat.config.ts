@@ -27,8 +27,8 @@ module.exports = {
             enabled: true,
             runs: 999999
           },
-          evmVersion: "istanbul",
-          // evmVersion: "byzantium",
+          // evmVersion: "istanbul",
+          evmVersion: "byzantium",
           outputSelection: {
             "*": {
               "*": [

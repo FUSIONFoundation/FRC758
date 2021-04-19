@@ -23,16 +23,20 @@ async function main() {
 
   const _maxTime = await exampleToken.MAX_TIME()
 
-  const maxTime = parseInt(_maxTime._hex)
+  const maxTime = parseInt(_maxTime._hex).toString()
+
+  console.log(maxTime);
 
   const now = parseInt( (Date.now() / 1000).toString())
 
   const amount = 190000000000000
   
-  await exampleToken.mint(owner.address, amount, now+10000, maxTime);
-  await exampleToken.mint(owner.address, amount, now+20000, maxTime);
-
-  const _balance2 = await exampleToken.balanceOf(owner.address, now, maxTime);
+  await sleep()
+  await exampleToken.mintTimeSlice(owner.address, amount, now+10000, maxTime);
+  await sleep()
+  await exampleToken.mintTimeSlice(owner.address, amount, now+20000, maxTime);
+  await sleep()
+  const _balance2 = await exampleToken.timeBalanceOf(owner.address, now+20000, maxTime);
   const balance2 = parseInt(_balance2._hex)
 
   console.log(balance2)
@@ -40,6 +44,14 @@ async function main() {
   const slice = await exampleToken.sliceOf(owner.address);
   console.log(slice);
 
+  async function sleep() {
+    return new Promise<void>(function(resv, rej) {
+        setTimeout(() => {
+          resv()
+        }, 10000)
+    })
+  }
+  
   // const _balance0 = await exampleToken.balanceOf(owner.address, now, maxTime);
   // const balance0 = parseInt(_balance0._hex)
   // if(amount != balance0) {
@@ -81,3 +93,5 @@ main()
     console.error(error);
     process.exit(1);
   });
+
+  
