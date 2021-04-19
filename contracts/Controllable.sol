@@ -2,7 +2,7 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity =0.7.6;
 import './Ownable.sol';
-contract Controllable is Ownable {
+abstract contract Controllable is Ownable {
     mapping(address => bool) controllers;
     address[] public addressCount;
 
