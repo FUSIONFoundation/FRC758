@@ -15,10 +15,10 @@ contract Controllable is Ownable {
         return msg.sender == owner || controllers[_controller];
     }
 
-    function addControllers(address _controllers) external onlyOwner {
-        _validateAddress2(_controllers);
-        controllers[_controllers] = true;
-        addressCount.push(_controllers);
+    function addControllers(address _controller) external onlyOwner {
+        _validateAddress2(_controller);
+        controllers[_controller] = true;
+        addressCount.push(_controller);
     }
     
     function removeControllers(address _controller) external onlyOwner {
