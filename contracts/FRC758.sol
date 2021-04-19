@@ -157,8 +157,8 @@ abstract contract FRC758 is IFRC758 {
         emit ApprovalForAll(msg.sender, _to, _approved);
     }
 
-    function isApprovedForAll(address _owner, address _operator) public view override returns (bool) {
-        return operatorApprovals[_owner][_operator];
+    function isApprovedForAll(address _owner, address _spender) public view override returns (bool) {
+        return operatorApprovals[_owner][_spender];
     }
 
     //the _spender is trying to spend assets from _from
@@ -190,6 +190,7 @@ abstract contract FRC758 is IFRC758 {
 
         SlicedToken memory st = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
         _subSliceFromBalance(_from, st);
+
         _addSliceToBalance(_to, st);
         emit Transfer(_from, _to, amount, tokenStart, tokenEnd);
     }
