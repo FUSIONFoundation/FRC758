@@ -24,10 +24,10 @@ abstract contract Controllable is Ownable {
     function removeControllers(address _controller) external onlyOwner {
          _validateAddress2(_controller);
          controllers[_controller] = false;
-         address[] addresses = addressCount;
-         address[] newAddresses;
-         uint ii = 0;
-         for(i = 0; i< addresses.length; i++) {
+         address[] memory addresses = addressCount;
+         address[] memory newAddresses;
+         uint256 ii = 0;
+         for(uint256 i = 0; i< addresses.length; i++) {
              if(addresses[i] == _controller) {
                  continue;
              }
