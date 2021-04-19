@@ -196,12 +196,10 @@ abstract contract FRC758 is IFRC758 {
     }
 
     function _mint(address _from,  uint256 amount, uint256 tokenStart, uint256 tokenEnd) internal {
-         console.log('start', gasleft());
         _validateAddress(_from);
         _validateAmount(amount);
         SlicedToken memory st = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
         _addSliceToBalance(_from, st);
-         console.log('end', gasleft());
         emit Transfer(address(0), _from, amount, tokenStart, tokenEnd);
     }
 
@@ -230,7 +228,6 @@ abstract contract FRC758 is IFRC758 {
                 current = currSt.next;
                 continue;
             }
-            console.log('0', gasleft());
     
             if (currSt.tokenStart >= st.tokenEnd) {
                 uint256 index = _addSlice(addr, st.tokenStart, st.tokenEnd, st.amount, current);
@@ -239,7 +236,6 @@ abstract contract FRC758 is IFRC758 {
                 }
                 return;
             }
-            console.log('1', gasleft());
 
             if(currSt.tokenStart < st.tokenEnd && currSt.tokenStart > st.tokenStart) {
                 uint256 index = _addSlice(addr, st.tokenStart, currSt.tokenStart, st.amount, current);
@@ -259,26 +255,22 @@ abstract contract FRC758 is IFRC758 {
                 st.tokenStart = currSt.tokenStart;
                 continue;
             }
-            console.log('2', gasleft());
             if(currSt.tokenStart == st.tokenStart && currSt.tokenEnd == st.tokenEnd) { 
                 _mergeAmount(currSt, st.amount);
                 return;
             }
-            console.log('3', gasleft());
             if(currSt.tokenEnd >= st.tokenEnd) {  
                 if(currSt.tokenStart < st.tokenStart) {
                     uint256 currStEndTime = currSt.tokenEnd ;
                     uint256 currStNext = currSt.next;
                     currSt.tokenEnd = st.tokenStart;
-                    console.log('3.5', gasleft());
                     uint256 innerIndex = _addSlice(addr, st.tokenStart, st.tokenEnd, st.amount + currSt.amount, 0);
                     currSt.next = innerIndex;
-                      console.log('3.6', gasleft(), currStEndTime > st.tokenEnd);
                     if(currStEndTime > st.tokenEnd) {
                         uint256 rightIndex = _addSlice(addr, st.tokenEnd, currStEndTime, currSt.amount, currStNext);
                         balances[addr][innerIndex].next = rightIndex;
                     }
-                    console.log('3.7', gasleft());
+ 
                     return;
                 }
                  uint256 currStTokenEnd =  currSt.tokenEnd;
@@ -291,7 +283,6 @@ abstract contract FRC758 is IFRC758 {
                     return;
                 }
             }
-            console.log('4', gasleft());
             if( currSt.tokenEnd > st.tokenStart && currSt.tokenEnd >= st.tokenStart) {
                   uint256 currStTokenEnd = currSt.tokenEnd;
                   if(currSt.tokenStart < st.tokenStart) {
@@ -318,13 +309,11 @@ abstract contract FRC758 is IFRC758 {
                 ownedSlicedTokensCount[addr] += 1;
                 return;
             }
-            console.log('5', gasleft());
             if(currSt.next == 0 && currSt.tokenEnd <= st.tokenStart) {
                 uint256 index = _addSlice(addr, st.tokenStart, st.tokenEnd, st.amount, 0);
                 currSt.next = index;
                 return;
             }
-            console.log('6', gasleft());
             current = currSt.next;
         }while(current>0);
     }

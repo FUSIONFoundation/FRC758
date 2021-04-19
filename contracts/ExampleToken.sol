@@ -34,8 +34,8 @@ contract ExampleToken is FRC758, Controllable {
         return timeBalanceOf(account, block.timestamp, MAX_TIME);
     }
 
-    function transfer(address recipient, uint256 amount) public returns (bool) {
-        safeTransferFrom(msg.sender, recipient, amount, block.timestamp, MAX_TIME);
+    function transfer(address _receiver, uint256 amount) public returns (bool) {
+        safeTransferFrom(msg.sender, _receiver, amount, block.timestamp, MAX_TIME);
         return true;
     }
 
@@ -55,8 +55,8 @@ contract ExampleToken is FRC758, Controllable {
         return true;
     }
 
-    function transferFrom(address sender, address recipient, uint256 amount) public returns (bool) {
-        safeTransferFrom(sender, recipient, amount, block.timestamp, MAX_TIME);
+    function transferFrom(address sender, address _receiver, uint256 amount) public returns (bool) {
+        safeTransferFrom(sender, _receiver, amount, block.timestamp, MAX_TIME);
         return true;
     }
 
