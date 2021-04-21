@@ -28,38 +28,21 @@ abstract contract FRC758 is IFRC758 {
         return decimals_;
     }
     using SafeMath256 for uint256;
-<<<<<<< HEAD
     // Equals to `bytes4(keccak256("onTimeSlicedTokenReceived(address,address,uint256,uint256,uint256,bytes)"))`
     bytes4 private constant _TIMESLICEDTOKEN_RECEIVED = 0xb005a606;
-    
-    uint256 public constant MAX_UINT = 2**256 - 1;
-
-    uint256 public constant MAX_TIME = 18446744073709551615;
-    
-    struct SlicedToken {
-        uint256 amount; 
-        uint256 tokenStart; 
-=======
-	
-	bytes4 private constant _TIMESLICEDTOKEN_RECEIVED = 0xb005a606;
 	uint256 public constant MAX_TIME = 18446744073709551615;
     
     struct SlicedToken {
         uint256 amount;
         uint256 tokenStart;
->>>>>>> 662179a772abe8e949cf4e14a4fd9c2ee33a8bb9
         uint256 tokenEnd;
         uint256 next;
     }
     
     mapping (address => mapping (uint256 => SlicedToken)) internal balances;
-<<<<<<< HEAD
     
     mapping (address => uint256) internal ownedSlicedTokensCount;
 
-=======
-    mapping (address => uint256) internal ownedSlicedTokensCount;
->>>>>>> 662179a772abe8e949cf4e14a4fd9c2ee33a8bb9
     mapping (address => mapping (address => bool)) internal operatorApprovals;
     uint256 internal _totalSupply;
     mapping (address => uint256 ) headerIndex;
@@ -79,11 +62,6 @@ abstract contract FRC758 is IFRC758 {
     function totalSupply() public view override returns (uint256) {
         return _totalSupply;
     }
-<<<<<<< HEAD
-
-=======
-    
->>>>>>> 662179a772abe8e949cf4e14a4fd9c2ee33a8bb9
     function _validateTokenStartAndEnd(uint256 tokenStart, uint256 tokenEnd) internal view {
         require(tokenStart < tokenEnd, "FRC758: tokenStart can't be greater than tokenEnd");
 	    require(tokenEnd >= block.timestamp || tokenEnd <= MAX_TIME, "FRC758: tokenEnd can't be greater than MAX_TIME or less than blocktime");
