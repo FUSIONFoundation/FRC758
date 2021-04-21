@@ -1,5 +1,5 @@
-//SPDX-License-Identifier: Unlicense
-pragma solidity =0.7.6;
+//SPDX-License-Identifier: ChaingeFinance
+pragma solidity = 0.7.5;
 
 import "./Controllable.sol";
 import "./libraries/SafeMath256.sol";
@@ -28,6 +28,7 @@ abstract contract FRC758 is IFRC758 {
         return decimals_;
     }
     using SafeMath256 for uint256;
+<<<<<<< HEAD
     // Equals to `bytes4(keccak256("onTimeSlicedTokenReceived(address,address,uint256,uint256,uint256,bytes)"))`
     bytes4 private constant _TIMESLICEDTOKEN_RECEIVED = 0xb005a606;
     
@@ -38,18 +39,29 @@ abstract contract FRC758 is IFRC758 {
     struct SlicedToken {
         uint256 amount; 
         uint256 tokenStart; 
+=======
+	
+	bytes4 private constant _TIMESLICEDTOKEN_RECEIVED = 0xb005a606;
+	uint256 public constant MAX_TIME = 18446744073709551615;
+    
+    struct SlicedToken {
+        uint256 amount;
+        uint256 tokenStart;
+>>>>>>> 662179a772abe8e949cf4e14a4fd9c2ee33a8bb9
         uint256 tokenEnd;
         uint256 next;
     }
     
     mapping (address => mapping (uint256 => SlicedToken)) internal balances;
+<<<<<<< HEAD
     
     mapping (address => uint256) internal ownedSlicedTokensCount;
 
+=======
+    mapping (address => uint256) internal ownedSlicedTokensCount;
+>>>>>>> 662179a772abe8e949cf4e14a4fd9c2ee33a8bb9
     mapping (address => mapping (address => bool)) internal operatorApprovals;
-    
     uint256 internal _totalSupply;
-
     mapping (address => uint256 ) headerIndex;
 
     function _checkRights(bool _has) internal pure {
@@ -67,26 +79,30 @@ abstract contract FRC758 is IFRC758 {
     function totalSupply() public view override returns (uint256) {
         return _totalSupply;
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 662179a772abe8e949cf4e14a4fd9c2ee33a8bb9
     function _validateTokenStartAndEnd(uint256 tokenStart, uint256 tokenEnd) internal view {
-        require(tokenEnd >= tokenStart, "tokenStart greater than tokenEnd");
-        require((tokenEnd >= block.timestamp) || (tokenEnd >= block.number), "blockEnd less than current blockNumber or timestamp");
+        require(tokenStart < tokenEnd, "FRC758: tokenStart can't be greater than tokenEnd");
+	    require(tokenEnd >= block.timestamp || tokenEnd <= MAX_TIME, "FRC758: tokenEnd can't be greater than MAX_TIME or less than blocktime");
     }
 
     function sliceOf(address from) public view override returns (uint256[] memory, uint256[] memory, uint256[] memory) {
         _validateAddress(from);
-       uint header = headerIndex[from];
-       if(header == 0) {
-           return (new uint256[](0), new uint256[](0), new uint256[](0));
-       }
+        uint header = headerIndex[from];
+        if(header == 0) {
+            return (new uint256[](0), new uint256[](0), new uint256[](0));
+        }
         uint256 count = 0;
      
         while(header > 0) {
-                SlicedToken memory st = balances[from][header];
-                if(block.timestamp < st.tokenEnd) {
-                    count++;
-                }
-                header = st.next;
+		SlicedToken memory st = balances[from][header];
+            if(block.timestamp < st.tokenEnd) {
+                count++;
+            }
+            header = st.next;
         }
         uint256 allCount = ownedSlicedTokensCount[from];
         uint256[] memory amountArray = new uint256[](count);
@@ -108,60 +124,57 @@ abstract contract FRC758 is IFRC758 {
     }
 
     function timeBalanceOf(address from, uint256 tokenStart, uint256 tokenEnd) public override view returns(uint256) {
-       if (tokenStart >= tokenEnd) {
+		if (tokenStart >= tokenEnd) {
            return 0;
-       }
-       uint256 next = headerIndex[from];
-       if(next == 0) {
+		}
+		uint256 next = headerIndex[from];
+		if(next == 0) {
            return 0;
-       }
-       uint256 amount = 0;   
-        while(next > 0) {
-                SlicedToken memory st = balances[from][next];
-                if( tokenStart < st.tokenStart || (st.next == 0 && tokenEnd > st.tokenEnd)) {
-                    amount = 0;
-                    break;
-                }
-                if(tokenStart >= st.tokenEnd) {
-                    next = st.next;
-                    continue;
-                }
-                if(amount == 0 || amount > st.amount) {
-                    amount =  st.amount;
-                }
-                if(tokenEnd <= st.tokenEnd) {
-                   break;
-                }
-                tokenStart = st.tokenEnd;
+		}
+		uint256 amount = 0;   
+		while(next > 0) {
+		SlicedToken memory st = balances[from][next];
+            if( tokenStart < st.tokenStart || (st.next == 0 && tokenEnd > st.tokenEnd)) {
+				amount = 0;
+				break;
+            }
+            if(tokenStart >= st.tokenEnd) {
                 next = st.next;
+                continue;
+            }
+            if(amount == 0 || amount > st.amount) {
+                amount =  st.amount;
+            }
+            if(tokenEnd <= st.tokenEnd) {
+                break;
+            }
+            tokenStart = st.tokenEnd;
+            next = st.next;
         }
-
         return amount;
     }
 
-
-    function setApprovalForAll(address _to, bool _approved) public override {
-        require(_to != msg.sender, "wrong approval destination");
-        operatorApprovals[msg.sender][_to] = _approved;
-        emit ApprovalForAll(msg.sender, _to, _approved);
+    function setApprovalForAll(address _spender, bool _approved) public override {
+        require(_spender != msg.sender, "FRC758: wrong approval destination");
+        operatorApprovals[msg.sender][_spender] = _approved;
+        emit ApprovalForAll(msg.sender, _spender, _approved);
     }
 
     function isApprovedForAll(address _owner, address _spender) public view override returns (bool) {
         return operatorApprovals[_owner][_spender];
     }
 
-    //the _spender is trying to spend assets from _from
     function isApprovedOrOwner(address _spender, address _from) public view returns (bool) {
         return _spender == _from || isApprovedForAll(_from, _spender);
     }
 
     function safeTransferFrom(address _from, address _to, uint256 amount, uint256 tokenStart, uint256 tokenEnd) public override {
-		require(checkAndCallSafeTransfer(_from, _to, amount, tokenStart, tokenEnd), "can't make safe transfer");
+		require(checkAndCallSafeTransfer(_from, _to, amount, tokenStart, tokenEnd), "FRC758: can't make safe transfer");
         _validateAddress(_from);
         _validateAddress(_to);
         _validateAmount(amount);
         _checkRights(isApprovedOrOwner(msg.sender, _from));
-        require(_from != _to, "no sending to yourself");
+        require(_from != _to, "FRC758: can not send to yourself");
 
         SlicedToken memory st = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
         _subSliceFromBalance(_from, st);
@@ -196,7 +209,6 @@ abstract contract FRC758 is IFRC758 {
         }
 
         uint256 current = headerIndex[addr];
-               
         do {
             SlicedToken storage currSt = balances[addr][current];
             if(st.tokenStart >= currSt.tokenEnd && currSt.next != 0 ) {
@@ -226,7 +238,6 @@ abstract contract FRC758 is IFRC758 {
                         _current = balances[addr][_current].next;
                     }
                 }
-
                 st.tokenStart = currSt.tokenStart;
                 continue;
             }
@@ -290,8 +301,8 @@ abstract contract FRC758 is IFRC758 {
                 return;
             }
             current = currSt.next;
-        }while(current>0);
-    }
+        }while(current > 0);
+    } 
 
     function _mergeAmount(SlicedToken storage currSt, uint256 amount) internal {
         currSt.amount += amount;
@@ -305,9 +316,7 @@ abstract contract FRC758 is IFRC758 {
     function _subSliceFromBalance(address addr, SlicedToken memory st) internal {
         uint256 count = ownedSlicedTokensCount[addr];
 
-        if(count == 0) {
-            revert();
-        }
+		require(count != 0, 'Empty slice items');
 
         uint256 current = headerIndex[addr];
         do {
@@ -319,10 +328,10 @@ abstract contract FRC758 is IFRC758 {
                 continue;
             }
 
-            require(st.amount <= currSt.amount, 'Insufficient balance');
-            require(currSt.tokenStart < st.tokenEnd, 'Time mismatch');
-            require(!(currSt.next == 0 && currSt.tokenEnd < st.tokenEnd), 'Time mismatch');
-            require(!(currSt.tokenStart < st.tokenEnd && currSt.tokenStart > st.tokenStart), 'Time mismatch');
+            require(st.amount <= currSt.amount, 'FRC758: insufficient balance');
+            require(currSt.tokenStart < st.tokenEnd, 'FRC758: subSlice time check fail point 1');
+            require(!(currSt.next == 0 && currSt.tokenEnd < st.tokenEnd), 'FRC758: subSlice time check fail point 2');
+            require(!(currSt.tokenStart < st.tokenEnd && currSt.tokenStart > st.tokenStart), 'FRC758: subSlice time check fail point 3');
 
             if(currSt.tokenStart == st.tokenStart && currSt.tokenEnd == st.tokenEnd) {
                 currSt.amount -= st.amount;
@@ -350,7 +359,6 @@ abstract contract FRC758 is IFRC758 {
                 if(current == headerIndex[addr]) { 
                     headerIndex[addr] = index; 
                 }else {
-                    
                     uint256 _current = headerIndex[addr];
                     while(_current > 0) {
                         if(balances[addr][_current].next == current)  {
@@ -368,8 +376,8 @@ abstract contract FRC758 is IFRC758 {
 
                 if(currStTokenEnd >= st.tokenEnd) {
                     if(currStTokenEnd > st.tokenEnd) {
-                         uint256 index = _addSlice(addr, st.tokenEnd, currStTokenEnd, currStAmunt, currSt.next);
-                         currSt.next = index;
+                         uint256 index1 = _addSlice(addr, st.tokenEnd, currStTokenEnd, currStAmunt, currSt.next);
+                         currSt.next = index1;
                     }
                     break; 
                 }
@@ -389,7 +397,8 @@ abstract contract FRC758 is IFRC758 {
         if (!_isContract(_to)) {
             return true;
         }
-        bytes4 retval = ITimeSlicedTokenReceiver(_to).onTimeSlicedTokenReceived(msg.sender, _from, amount, tokenStart, tokenEnd);
+        bytes4 retval = ITimeSlicedTokenrecipient(_to).onTimeSlicedTokenReceived(msg.sender, _from, amount, tokenStart, tokenEnd);
         return (retval == _TIMESLICEDTOKEN_RECEIVED);
     }
 }
+

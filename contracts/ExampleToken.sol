@@ -1,5 +1,5 @@
-//SPDX-License-Identifier: Unlicense
-pragma solidity =0.7.6;
+//SPDX-License-Identifier: ChaingeFinance
+pragma solidity = 0.7.6;
 
 import './FRC758.sol';
 import './Controllable.sol';
@@ -7,13 +7,15 @@ import "@nomiclabs/buidler/console.sol";
 
 contract ExampleToken is FRC758, Controllable {
 
-    uint256 private constant TotalLimit = 814670050000000000000000000;
-    
-    constructor(string memory name, string memory symbol, uint256 decimals, totalLimit ) FRC758(name, symbol, decimals){}
+    uint256 private TotalLimit = 0;
 
-	function mint(address _receiver, uint256 amount) external onlyController {
-		require((amount + _totalSupply) <= TotalLimit, "can not mint more tokens");
-        _mint(_receiver, amount, block.timestamp, MAX_TIME);
+    constructor(string memory name, string memory symbol, uint256 decimals, uint256 limit) FRC758(name, symbol, decimals){
+        TotalLimit = limit  * 10 ** decimals;
+    }
+
+	function mint(address _recipient, uint256 amount) external onlyController {
+		require((amount + _totalSupply) <= TotalLimit, "FRC758: can not mint more tokens");
+        _mint(_recipient, amount, block.timestamp, MAX_TIME);
 		_totalSupply += amount;
     }
 
@@ -21,21 +23,12 @@ contract ExampleToken is FRC758, Controllable {
         _burn(_owner, amount, block.timestamp, MAX_TIME);
     }
 
-    function onTimeSlicedTokenReceived(address _operator, address _from, uint256 amount, uint256 newTokenStart, uint256 newTokenEnd) public pure returns(bytes4) {
-        _operator = address(0);
-        _from = address(0);
-        amount = 0;
-        newTokenStart = 0;
-        newTokenEnd = 0;
-        return bytes4(keccak256("onTimeSlicedTokenReceived(address,address,uint256,uint256,uint256)"));
-    }
-
     function balanceOf(address account) public view returns (uint256) {
         return timeBalanceOf(account, block.timestamp, MAX_TIME);
     }
 
-    function transfer(address _receiver, uint256 amount) public returns (bool) {
-        safeTransferFrom(msg.sender, _receiver, amount, block.timestamp, MAX_TIME);
+    function transfer(address _recipient, uint256 amount) public returns (bool) {
+        safeTransferFrom(msg.sender, _recipient, amount, block.timestamp, MAX_TIME);
         return true;
     }
 
@@ -55,19 +48,17 @@ contract ExampleToken is FRC758, Controllable {
         return true;
     }
 
-    function transferFrom(address sender, address _receiver, uint256 amount) public returns (bool) {
-        safeTransferFrom(sender, _receiver, amount, block.timestamp, MAX_TIME);
+    function transferFrom(address sender, address _recipient, uint256 amount) public returns (bool) {
+        safeTransferFrom(sender, _recipient, amount, block.timestamp, MAX_TIME);
         return true;
     }
-
-    function mintTimeSlice(address _receiver, uint256 amount, uint256 tokenStart, uint256 tokenEnd) external onlyController {
-		require((amount + _totalSupply) <= TotalLimit, "can not mint more tokens");
-        _mint(_receiver, amount, tokenStart, tokenEnd);
-		_totalSupply += amount;
+    
+    function onTimeSlicedTokenReceived(address _operator, address _from, uint256 amount, uint256 newTokenStart, uint256 newTokenEnd) public pure returns(bytes4) {
+        _operator = address(0);
+        _from = address(0);
+        amount = 0;
+        newTokenStart = 0;
+        newTokenEnd = 0;
+        return bytes4(keccak256("onTimeSlicedTokenReceived(address,address,uint256,uint256,uint256)"));
     }
-
-    function burnTimeSlice(address _owner, uint256 amount, uint256 tokenStart, uint256 tokenEnd) external onlyController {
-        _burn(_owner, amount, tokenStart, tokenEnd);
-    }
-
 }
