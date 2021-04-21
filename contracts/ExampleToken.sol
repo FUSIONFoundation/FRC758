@@ -9,7 +9,7 @@ contract ExampleToken is FRC758, Controllable {
 
     uint256 private constant TotalLimit = 814670050000000000000000000;
     
-    constructor(string memory name, string memory symbol, uint256 decimals ) FRC758(name, symbol, decimals){}
+    constructor(string memory name, string memory symbol, uint256 decimals, totalLimit ) FRC758(name, symbol, decimals){}
 
 	function mint(address _receiver, uint256 amount) external onlyController {
 		require((amount + _totalSupply) <= TotalLimit, "can not mint more tokens");

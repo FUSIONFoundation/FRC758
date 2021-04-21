@@ -18,21 +18,16 @@ abstract contract FRC758 is IFRC758 {
         symbol_ = _symbol;
         decimals_ = _decimals;
     }
-    
     function name() public view override returns (string memory) {
         return name_;
     }
-
     function symbol() public view override returns (string memory) {
         return symbol_;
     }
-    
     function decimals() public view override returns (uint256) {
         return decimals_;
     }
-    
     using SafeMath256 for uint256;
-
     // Equals to `bytes4(keccak256("onTimeSlicedTokenReceived(address,address,uint256,uint256,uint256,bytes)"))`
     bytes4 private constant _TIMESLICEDTOKEN_RECEIVED = 0xb005a606;
     
@@ -41,19 +36,16 @@ abstract contract FRC758 is IFRC758 {
     uint256 public constant MAX_TIME = 18446744073709551615;
     
     struct SlicedToken {
-        uint256 amount; //token amount
-        uint256 tokenStart; //token start blockNumber or timestamp (in secs from unix epoch)
-        uint256 tokenEnd; //token end blockNumber or timestamp, use MAX_UINT for timestamp, MAX_BLOCKNUMBER for blockNumber.
+        uint256 amount; 
+        uint256 tokenStart; 
+        uint256 tokenEnd;
         uint256 next;
     }
     
-    // Mapping from owner to a map of SlicedToken
     mapping (address => mapping (uint256 => SlicedToken)) internal balances;
     
-    // Mapping from owner to number of SlicedToken struct（record length of balances）
     mapping (address => uint256) internal ownedSlicedTokensCount;
 
-    // Mapping from owner to operator approvals
     mapping (address => mapping (address => bool)) internal operatorApprovals;
     
     uint256 internal _totalSupply;
@@ -64,12 +56,10 @@ abstract contract FRC758 is IFRC758 {
         require(_has, "no rights to manage");
     }
 
-    //address should be non-zero
     function _validateAddress(address _addr) internal  pure {
         require(_addr != address(0), "invalid address");
     }
     
-    //amount should be greater than 0
     function _validateAmount(uint256 amount) internal pure {
         require(amount > 0, "invalid amount");
     }
@@ -77,8 +67,7 @@ abstract contract FRC758 is IFRC758 {
     function totalSupply() public view override returns (uint256) {
         return _totalSupply;
     }
-    
-    //validate tokenStart and tokenEnd
+
     function _validateTokenStartAndEnd(uint256 tokenStart, uint256 tokenEnd) internal view {
         require(tokenEnd >= tokenStart, "tokenStart greater than tokenEnd");
         require((tokenEnd >= block.timestamp) || (tokenEnd >= block.number), "blockEnd less than current blockNumber or timestamp");
