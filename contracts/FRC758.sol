@@ -166,20 +166,6 @@ abstract contract FRC758 is IFRC758 {
         return _spender == _from || isApprovedForAll(_from, _spender);
     }
 
-    // function transferFrom(address _from, address _to, uint256 amount, uint256 tokenStart, uint256 tokenEnd) public override {
-    //     _validateAddress(_from);
-    //     _validateAddress(_to);
-    //     _validateAmount(amount);
-    //     _checkRights(isApprovedOrOwner(msg.sender, _from));
-    //     require(_from != _to, "no sending to yourself");
-
-    //     SlicedToken memory st = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
-    //     _subSliceFromBalance(_from, st);
-    //     _addSliceToBalance(_to, st);
-    //     emit Transfer(_from, _to, amount, tokenStart, tokenEnd);
-    // }
-
-
     function safeTransferFrom(address _from, address _to, uint256 amount, uint256 tokenStart, uint256 tokenEnd) public override {
 		require(checkAndCallSafeTransfer(_from, _to, amount, tokenStart, tokenEnd), "can't make safe transfer");
         _validateAddress(_from);
@@ -343,20 +329,11 @@ abstract contract FRC758 is IFRC758 {
                 current = currSt.next;
                 continue;
             }
-            if(st.amount > currSt.amount) {
-                revert();
-            }
 
-            if (currSt.tokenStart >= st.tokenEnd) { 
-                 revert();
-            }
-            if(currSt.next == 0 && currSt.tokenEnd < st.tokenEnd) { 
-                 revert();
-            }
-
-            if(currSt.tokenStart < st.tokenEnd && currSt.tokenStart > st.tokenStart) { 
-                revert();
-            }
+            require(st.amount <= currSt.amount, 'Insufficient balance');
+            require(currSt.tokenStart < st.tokenEnd, 'Time mismatch');
+            require(!(currSt.next == 0 && currSt.tokenEnd < st.tokenEnd), 'Time mismatch');
+            require(!(currSt.tokenStart < st.tokenEnd && currSt.tokenStart > st.tokenStart), 'Time mismatch');
 
             if(currSt.tokenStart == st.tokenStart && currSt.tokenEnd == st.tokenEnd) {
                 currSt.amount -= st.amount;
