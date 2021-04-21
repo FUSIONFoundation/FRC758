@@ -1,6 +1,5 @@
-//SPDX-License-Identifier: Unlicense
-pragma solidity =0.7.6;
-//Make the contract Ownable by someone.
+//SPDX-License-Identifier: ChaingeFinance
+pragma solidity = 0.7.5;
 abstract contract Ownable {
     address public owner;
 
@@ -19,7 +18,6 @@ abstract contract Ownable {
         _;
     }
 
-    //transfer the ownership to the new address.
     function transferOwnership(address newOwner) external onlyOwner {
         _validateAddress2(newOwner);
         owner = newOwner;
