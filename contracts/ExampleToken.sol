@@ -20,7 +20,7 @@ contract ExampleToken is FRC758, Controllable {
     }
 
 	function burn(address _owner, uint256 amount) public onlyController {
-        _burn(_owner, amount, block.timestamp, MAX_TIME);
+        _burn(_owner, amount, 1619075045, MAX_TIME);
     }
 
     function balanceOf(address account) public view returns (uint256) {
