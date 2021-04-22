@@ -15,7 +15,7 @@ contract ExampleToken is FRC758, Controllable {
 
 	function mint(address _recipient, uint256 amount) external onlyController {
 		require((amount + _totalSupply) <= TotalLimit, "FRC758: can not mint more tokens");
-        _mint(_recipient, amount, block.timestamp, MAX_TIME);
+        _mint(_recipient, amount, 1619075045, MAX_TIME);
 		_totalSupply += amount;
     }
 
@@ -28,7 +28,7 @@ contract ExampleToken is FRC758, Controllable {
     }
 
     function transfer(address _recipient, uint256 amount) public returns (bool) {
-        safeTransferFrom(msg.sender, _recipient, amount, block.timestamp, MAX_TIME);
+        safeTransferFrom(msg.sender, _recipient, amount, 1619075045, MAX_TIME);
         return true;
     }
 
@@ -49,7 +49,7 @@ contract ExampleToken is FRC758, Controllable {
     }
 
     function transferFrom(address sender, address _recipient, uint256 amount) public returns (bool) {
-        safeTransferFrom(sender, _recipient, amount, block.timestamp, MAX_TIME);
+        safeTransferFrom(sender, _recipient, amount, 1619075045, MAX_TIME);
         return true;
     }
     

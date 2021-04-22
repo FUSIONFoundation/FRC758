@@ -369,7 +369,7 @@ abstract contract FRC758 is IFRC758 {
         uint256 size;
         assembly { size := extcodesize(addr) }
         return size > 0;
-    }    
+    }
 
     function checkAndCallSafeTransfer(address _from, address _to, uint256 amount, uint256 tokenStart, uint256 tokenEnd) internal returns (bool) {
         if (!_isContract(_to)) {
