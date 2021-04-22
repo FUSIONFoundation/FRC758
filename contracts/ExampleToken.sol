@@ -15,16 +15,16 @@ contract ExampleToken is FRC758, Controllable {
 
 	function mint(address _recipient, uint256 amount) external onlyController {
 		require((amount + _totalSupply) <= TotalLimit, "FRC758: can not mint more tokens");
-        _mint(_recipient, amount, 1619075045, MAX_TIME);
+        _mint(_recipient, amount);
 		_totalSupply += amount;
     }
 
 	function burn(address _owner, uint256 amount) public onlyController {
-        _burn(_owner, amount, 1619075045, MAX_TIME);
+        _burn(_owner, amount);
     }
 
     function balanceOf(address account) public view returns (uint256) {
-        return timeBalanceOf(account, block.timestamp, MAX_TIME);
+        return timeBalanceOf(account, block.timestamp, MAX_TIME) + balance[account];
     }
 
     function transfer(address _recipient, uint256 amount) public returns (bool) {
@@ -48,10 +48,10 @@ contract ExampleToken is FRC758, Controllable {
         return true;
     }
 
-    function transferFrom(address sender, address _recipient, uint256 amount) public returns (bool) {
-        safeTransferFrom(sender, _recipient, amount, 1619075045, MAX_TIME);
-        return true;
-    }
+    // function transferFrom(address sender, address _recipient, uint256 amount) public returns (bool) {
+    //     // safeTransferFrom(sender, _recipient, amount, 1619075045, MAX_TIME);
+    //     return true;
+    // }
     
     function onTimeSlicedTokenReceived(address _operator, address _from, uint256 amount, uint256 newTokenStart, uint256 newTokenEnd) public pure returns(bytes4) {
         _operator = address(0);

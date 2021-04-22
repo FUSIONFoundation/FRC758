@@ -40,6 +40,8 @@ abstract contract FRC758 is IFRC758 {
     }
     
     mapping (address => mapping (uint256 => SlicedToken)) internal balances;
+
+    mapping (address => uint256) internal balance;
     
     mapping (address => uint256) internal ownedSlicedTokensCount;
 
@@ -146,7 +148,31 @@ abstract contract FRC758 is IFRC758 {
         return _spender == _from || isApprovedForAll(_from, _spender);
     }
 
-    function safeTransferFrom(address _from, address _to, uint256 amount, uint256 tokenStart, uint256 tokenEnd) public override {
+   function transferFrom(address sender, address _recipient, uint256 amount) public returns (bool) { //  转全段的, 优先转balance 再试图转balances
+  	    require(checkAndCallSafeTransfer(_from, _to, amount, tokenStart, tokenEnd), "FRC758: can't make safe transfer");
+        _validateAddress(_from);
+        _validateAddress(_to);
+        _validateAmount(amount);
+        _checkRights(isApprovedOrOwner(msg.sender, _from));
+
+        if(amount <= balance[sender]) {
+            balance[sender] = balance[sender].sub(amount);
+            balance[_recipient] = balance[_recipient].add(amount);
+            return true;
+        }
+
+        uint256 _amount = amount.sub(balance[sender]);        
+        balance[sender] = 0;
+
+        SlicedToken memory st = SlicedToken({amount: amount, tokenStart: block.timestamp, tokenEnd: MAX_TIME, next: 0});
+        _subSliceFromBalance(_from, st);
+
+        balance[_recipient] = balance[_recipient].add(amount);
+
+        return true;
+    }
+    
+    function sliceTransferFrom(address _from, address _to, uint256 amount, uint256 tokenStart, uint256 tokenEnd) public override { // 切时间转, 优先转slice账户, 不够的再试图切balance
 		require(checkAndCallSafeTransfer(_from, _to, amount, tokenStart, tokenEnd), "FRC758: can't make safe transfer");
         _validateAddress(_from);
         _validateAddress(_to);
@@ -154,26 +180,51 @@ abstract contract FRC758 is IFRC758 {
         _checkRights(isApprovedOrOwner(msg.sender, _from));
         require(_from != _to, "FRC758: can not send to yourself");
 
-        SlicedToken memory st = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
-        _subSliceFromBalance(_from, st);
+        uint256 timeBalance = timeBalanceOf(sender, tokenStart, tokenEnd); // 情况1 slice账户直接满足，
+        if(amount <= timeBalance) {
+                SlicedToken memory st = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
+                _subSliceFromBalance(_from, st);
+                _addSliceToBalance(_to, st);
+            // balance[_recipient] = balance[_recipient].add(amount);
+            return true;
+        }
 
-        _addSliceToBalance(_to, st);
+        // 情况2 slice账户不满足，
+        uint256 _amount = amount - timeBalance; // 多出来的amount
+
+        SlicedToken memory st = SlicedToken({amount: timeBalance, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0}); // 减掉这个时间内所有余额
+         _subSliceFromBalance(_from, st);
+
+        balance[_from] = balance[_from].sub(_amount); // 多出来的减全段的余额
+        
+        // 找零 判断是否要加左边还是右边
+        if(tokenStart > block.timestamp) { // 需要留前段
+            SlicedToken memory leftSt = SlicedToken({amount: _amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
+             _addSliceToBalance(_from, leftSt); 
+        }
+
+        if(tokenEnd < MAX_TIME) { // 需要留后段
+            SlicedToken memory rightSt = SlicedToken({amount: _amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
+            _addSliceToBalance(_from, rightSt); 
+        }
+
+        //-------给to地址加------
+        SlicedToken memory toSt = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
+        _addSliceToBalance(_to, toSt);
         emit Transfer(_from, _to, amount, tokenStart, tokenEnd);
     }
 
-    function _mint(address _from,  uint256 amount, uint256 tokenStart, uint256 tokenEnd) internal {
+    function _mint(address _from,  uint256 amount) internal {
         _validateAddress(_from);
         _validateAmount(amount);
-        SlicedToken memory st = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
-        _addSliceToBalance(_from, st);
-        emit Transfer(address(0), _from, amount, tokenStart, tokenEnd);
+        balance[_from].add(amount);
+        emit Transfer(address(0), _from, amount, 0, MAX_TIME);
     }
 
     function _burn(address _from, uint256 amount, uint256 tokenStart, uint256 tokenEnd) internal {
         _validateAddress(_from);
         _validateAmount(amount);
-        SlicedToken memory st = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
-        _subSliceFromBalance(_from, st);
+         balance[_from].sub(amount);
         emit Transfer(_from, address(0), amount, tokenStart, tokenEnd);
     }
 
