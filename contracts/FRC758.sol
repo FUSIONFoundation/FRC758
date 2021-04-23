@@ -46,7 +46,9 @@ abstract contract FRC758 is IFRC758 {
     mapping (address => uint256) internal ownedSlicedTokensCount;
 
     mapping (address => mapping (address => bool)) internal operatorApprovals;
-    uint256 internal _totalSupply;
+
+    uint256 public totalSupply;
+
     mapping (address => uint256 ) headerIndex;
 
     function _checkRights(bool _has) internal pure {
@@ -61,9 +63,6 @@ abstract contract FRC758 is IFRC758 {
         require(amount > 0, "invalid amount");
     }
 
-    function totalSupply() public view override returns (uint256) {
-        return _totalSupply;
-    }
     function _validateTokenStartAndEnd(uint256 tokenStart, uint256 tokenEnd) internal view {
         require(tokenStart < tokenEnd, "FRC758: tokenStart can't be greater than tokenEnd");
 	    require(tokenEnd >= block.timestamp || tokenEnd <= MAX_TIME, "FRC758: tokenEnd can't be greater than MAX_TIME or less than blocktime");
@@ -148,7 +147,7 @@ abstract contract FRC758 is IFRC758 {
         return _spender == _from || isApprovedForAll(_from, _spender);
     }
 
-   function transferFrom(address sender, address _recipient, uint256 amount) public returns (bool) { //  转全段的, 优先转balance 再试图转balances
+   function transferFrom(address sender, address _recipient, uint256 amount) public override returns (bool) { //  转全段的, 优先转balance 再试图转balances
         _validateAddress(sender);
         _validateAddress(_recipient);
         _validateAmount(amount);
@@ -171,8 +170,7 @@ abstract contract FRC758 is IFRC758 {
         return true;
     }
     
-    function sliceTransferFrom(address _from, address _to, uint256 amount, uint256 tokenStart, uint256 tokenEnd) public override { // 切时间转, 优先转slice账户, 不够的再试图切balance
-		require(checkAndCallSafeTransfer(_from, _to, amount, tokenStart, tokenEnd), "FRC758: can't make safe transfer");
+    function timeSliceTransferFrom(address _from, address _to, uint256 amount, uint256 tokenStart, uint256 tokenEnd) public override { // 切时间转, 优先转slice账户, 不够的再试图切balance
         _validateAddress(_from);
         _validateAddress(_to);
         _validateAmount(amount);
@@ -181,10 +179,10 @@ abstract contract FRC758 is IFRC758 {
 
         uint256 timeBalance = timeBalanceOf(_from, tokenStart, tokenEnd); // 情况1 slice账户直接满足，
         if(amount <= timeBalance) {
-                SlicedToken memory st = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
-                _subSliceFromBalance(_from, st);
-                _addSliceToBalance(_to, st);
-            return true;
+            SlicedToken memory st = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
+            _subSliceFromBalance(_from, st);
+            _addSliceToBalance(_to, st);
+            return;
         }
         // 情况2 slice账户不满足，
         uint256 _amount = amount - timeBalance; // 多出来的amount
@@ -218,10 +216,26 @@ abstract contract FRC758 is IFRC758 {
         emit Transfer(address(0), _from, amount, 0, MAX_TIME);
     }
 
-    function _burn(address _from, uint256 amount, uint256 tokenStart, uint256 tokenEnd) internal {
+    function _burn(address _from, uint256 amount) internal {
         _validateAddress(_from);
         _validateAmount(amount);
          balance[_from].sub(amount);
+        emit Transfer(_from, address(0), amount, 0, MAX_TIME);
+    }
+
+    function _mintSlice(address _from,  uint256 amount, uint256 tokenStart, uint256 tokenEnd) internal {
+        _validateAddress(_from);
+        _validateAmount(amount);
+        SlicedToken memory st = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
+        _addSliceToBalance(_from, st);
+        emit Transfer(address(0), _from, amount, 0, MAX_TIME);
+    }
+
+    function _burnSlice(address _from, uint256 amount, uint256 tokenStart, uint256 tokenEnd) internal {
+        _validateAddress(_from);
+        _validateAmount(amount);
+        SlicedToken memory st = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
+        _subSliceFromBalance(_from, st);
         emit Transfer(_from, address(0), amount, tokenStart, tokenEnd);
     }
 
@@ -411,19 +425,5 @@ abstract contract FRC758 is IFRC758 {
             }
             current = currSt.next;
         }while(current>0);
-    }
-
-    function _isContract(address addr) internal view returns (bool) {
-        uint256 size;
-        assembly { size := extcodesize(addr) }
-        return size > 0;
-    }
-
-    function checkAndCallSafeTransfer(address _from, address _to, uint256 amount, uint256 tokenStart, uint256 tokenEnd) internal returns (bool) {
-        if (!_isContract(_to)) {
-            return true;
-        }
-        bytes4 retval = ITimeSlicedTokenrecipient(_to).onTimeSlicedTokenReceived(msg.sender, _from, amount, tokenStart, tokenEnd);
-        return (retval == _TIMESLICEDTOKEN_RECEIVED);
     }
 }

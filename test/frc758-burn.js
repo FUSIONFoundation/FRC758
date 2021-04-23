@@ -6,7 +6,7 @@ describe("FRC758", function () {
   it("0-10 10-15 15-20", async function () {
     const [owner, other] = await ethers.getSigners();
     const FRC758 = await ethers.getContractFactory("ExampleToken");
-    const frc758 = await FRC758.deploy("Hello", "HH", 18);
+    const frc758 = await FRC758.deploy("Hello", "HH", 18, 100000000000000);
     await frc758.deployed();
     const now1 = Date.parse(new Date()) / 1000;
     const now2 = now1 + 10;
