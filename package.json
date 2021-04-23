@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "deploy": "npx hardhat run  scripts/sample-script.js --network localhost",
+    "deploy": "npx hardhat run  scripts/sample-script.ts --network localhost",
     "test": "npx hardhat test"
   },
   "author": "JimZhou",

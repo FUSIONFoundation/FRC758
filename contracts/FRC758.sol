@@ -152,7 +152,8 @@ abstract contract FRC758 is IFRC758 {
         _validateAddress(_recipient);
         _validateAmount(amount);
         _checkRights(isApprovedOrOwner(msg.sender, sender));
-
+        // console.log( balance[sender]);
+        //  console.log( amount);
         if(amount <= balance[sender]) {
             balance[sender] = balance[sender].sub(amount);
             balance[_recipient] = balance[_recipient].add(amount);
@@ -184,42 +185,49 @@ abstract contract FRC758 is IFRC758 {
             _addSliceToBalance(_to, st);
             return;
         }
+
         // 情况2 slice账户不满足，
-        uint256 _amount = amount - timeBalance; // 多出来的amount
+        uint256 _amount = amount.sub(timeBalance); // 多出来的amount
 
-        SlicedToken memory st = SlicedToken({amount: timeBalance, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0}); // 减掉这个时间内所有余额
-         _subSliceFromBalance(_from, st);
+        if(timeBalance !=0) {
+            SlicedToken memory st = SlicedToken({amount: timeBalance, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0}); // 减掉这个时间内所有余额
+             _subSliceFromBalance(_from, st);  
+        }
 
-        balance[_from] = balance[_from].sub(_amount); // 多出来的减全段的余额
-        
+         balance[_from] = balance[_from].sub(_amount); // 多出来的减全段的余额
         // 找零 判断是否要加左边还是右边
         if(tokenStart > block.timestamp) { // 需要留前段
-            SlicedToken memory leftSt = SlicedToken({amount: _amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
+            SlicedToken memory leftSt = SlicedToken({amount: _amount, tokenStart: 0, tokenEnd: tokenStart, next: 0});
              _addSliceToBalance(_from, leftSt); 
         }
 
         if(tokenEnd < MAX_TIME) { // 需要留后段
-            SlicedToken memory rightSt = SlicedToken({amount: _amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
+            SlicedToken memory rightSt = SlicedToken({amount: _amount, tokenStart: tokenEnd, tokenEnd: MAX_TIME, next: 0});
             _addSliceToBalance(_from, rightSt); 
         }
 
-        //-------给to 地址加钱------
+        //-------给to 地址加钱------ 是全段的，就直接加在全段账户
+        if(tokenStart <= block.timestamp && tokenEnd == MAX_TIME) {
+             balance[_from] =  balance[_from].add(amount);
+             return;
+        }
+
         SlicedToken memory toSt = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
         _addSliceToBalance(_to, toSt); 
         emit Transfer(_from, _to, amount, tokenStart, tokenEnd);
     }
 
-    function _mint(address _from,  uint256 amount) internal {
+    function _mint(address _from, uint256 amount) internal {
         _validateAddress(_from);
         _validateAmount(amount);
-        balance[_from].add(amount);
+        balance[_from] = balance[_from].add(amount);
         emit Transfer(address(0), _from, amount, 0, MAX_TIME);
     }
 
     function _burn(address _from, uint256 amount) internal {
         _validateAddress(_from);
         _validateAmount(amount);
-         balance[_from].sub(amount);
+         balance[_from] = balance[_from].sub(amount);
         emit Transfer(_from, address(0), amount, 0, MAX_TIME);
     }
 
