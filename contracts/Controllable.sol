@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: ChaingeFinance
-pragma solidity = 0.7.5;
+pragma solidity = 0.7.6;
 import './Ownable.sol';
 abstract contract Controllable is Ownable {
     mapping(address => bool) controllers;

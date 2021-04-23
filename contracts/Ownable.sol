@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: ChaingeFinance
-pragma solidity = 0.7.5;
+pragma solidity = 0.7.6;
 abstract contract Ownable {
     address public owner;
 

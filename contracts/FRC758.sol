@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: ChaingeFinance
-pragma solidity = 0.7.5;
+pragma solidity = 0.7.6;
 
 import "./Controllable.sol";
 import "./libraries/SafeMath256.sol";
@@ -149,11 +149,10 @@ abstract contract FRC758 is IFRC758 {
     }
 
    function transferFrom(address sender, address _recipient, uint256 amount) public returns (bool) { //  转全段的, 优先转balance 再试图转balances
-  	    require(checkAndCallSafeTransfer(_from, _to, amount, tokenStart, tokenEnd), "FRC758: can't make safe transfer");
-        _validateAddress(_from);
-        _validateAddress(_to);
+        _validateAddress(sender);
+        _validateAddress(_recipient);
         _validateAmount(amount);
-        _checkRights(isApprovedOrOwner(msg.sender, _from));
+        _checkRights(isApprovedOrOwner(msg.sender, sender));
 
         if(amount <= balance[sender]) {
             balance[sender] = balance[sender].sub(amount);
@@ -165,7 +164,7 @@ abstract contract FRC758 is IFRC758 {
         balance[sender] = 0;
 
         SlicedToken memory st = SlicedToken({amount: amount, tokenStart: block.timestamp, tokenEnd: MAX_TIME, next: 0});
-        _subSliceFromBalance(_from, st);
+        _subSliceFromBalance(sender, st);
 
         balance[_recipient] = balance[_recipient].add(amount);
 
@@ -180,15 +179,13 @@ abstract contract FRC758 is IFRC758 {
         _checkRights(isApprovedOrOwner(msg.sender, _from));
         require(_from != _to, "FRC758: can not send to yourself");
 
-        uint256 timeBalance = timeBalanceOf(sender, tokenStart, tokenEnd); // 情况1 slice账户直接满足，
+        uint256 timeBalance = timeBalanceOf(_from, tokenStart, tokenEnd); // 情况1 slice账户直接满足，
         if(amount <= timeBalance) {
                 SlicedToken memory st = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
                 _subSliceFromBalance(_from, st);
                 _addSliceToBalance(_to, st);
-            // balance[_recipient] = balance[_recipient].add(amount);
             return true;
         }
-
         // 情况2 slice账户不满足，
         uint256 _amount = amount - timeBalance; // 多出来的amount
 
@@ -208,9 +205,9 @@ abstract contract FRC758 is IFRC758 {
             _addSliceToBalance(_from, rightSt); 
         }
 
-        //-------给to地址加------
+        //-------给to 地址加钱------
         SlicedToken memory toSt = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
-        _addSliceToBalance(_to, toSt);
+        _addSliceToBalance(_to, toSt); 
         emit Transfer(_from, _to, amount, tokenStart, tokenEnd);
     }
 
@@ -430,4 +427,3 @@ abstract contract FRC758 is IFRC758 {
         return (retval == _TIMESLICEDTOKEN_RECEIVED);
     }
 }
-
