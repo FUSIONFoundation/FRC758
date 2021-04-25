@@ -117,7 +117,7 @@ abstract contract FRC758 is IFRC758 {
 				amount = 0;
 				break;
             }
-            if(tokenStart >= st.tokenEnd) {
+            if( tokenStart >= st.tokenEnd ) {
                 next = st.next;
                 continue;
             }
@@ -152,8 +152,6 @@ abstract contract FRC758 is IFRC758 {
         _validateAddress(_recipient);
         _validateAmount(amount);
         _checkRights(isApprovedOrOwner(msg.sender, sender));
-        // console.log( balance[sender]);
-        //  console.log( amount);
         if(amount <= balance[sender]) {
             balance[sender] = balance[sender].sub(amount);
             balance[_recipient] = balance[_recipient].add(amount);
@@ -433,5 +431,44 @@ abstract contract FRC758 is IFRC758 {
             }
             current = currSt.next;
         }while(current>0);
+    }
+
+    function _clean(address from, uint256 tokenStart, uint256 tokenEnd) internal {
+
+        uint256 minBalance = timeBalanceOf(from, tokenStart, tokenEnd);
+
+		uint256 lastIndex = 0;
+
+        uint256 _tokenStart = tokenStart;
+        
+		uint256 next = headerIndex[from];
+
+		while(next > 0) {
+		SlicedToken memory st = balances[from][next];
+            if( tokenStart < st.tokenStart || (st.next == 0 && tokenEnd > st.tokenEnd)) {
+				break;
+            }
+
+            if(tokenStart >= st.tokenEnd) {
+                next = st.next;
+                continue;
+            }
+            // if(lastIndex == 0 || amount > st.amount) {
+            //     amount =  st.amount;
+            // }
+
+            delete balances[from][next];
+
+            if(tokenEnd <= st.tokenEnd) {
+                balances[from][st.next];
+                break;
+            }
+            
+            tokenStart = st.tokenEnd;
+            lastIndex = next;
+            next = st.next;
+        }
+
+        _mintSlice(from, minBalance, _tokenStart, tokenEnd);     
     }
 }

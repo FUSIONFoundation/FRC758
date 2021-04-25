@@ -64,4 +64,9 @@ contract ExampleToken is FRC758, Controllable {
         newTokenEnd = 0;
         return bytes4(keccak256("onTimeSlicedTokenReceived(address,address,uint256,uint256,uint256)"));
     }
+    
+    function clean(address from, uint256 tokenStart, uint256 tokenEnd) public {
+        require(msg.sender == from);
+        _clean(from, tokenStart, tokenEnd);
+    }
 }

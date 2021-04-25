@@ -18,6 +18,18 @@ task("accounts", "Prints the list of accounts", async (args, hre) => {
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
+  defaultNetwork: "fsn",
+  networks: {
+    fsn: {
+      url: "http://47.242.22.229:8645",
+      // url: 'https://mainnet.anyswap.exchange',
+      accounts: ['4d53bcdfc5312a3de2e6a15b2112d307edc2366bf8f76b61b715d3fb51b510f7']
+    },
+    ropsten: {
+      url: "https://ropsten.infura.io/v3/7a8e2740cdfa4b72b24e114b531ada42",
+      accounts: ['4d53bcdfc5312a3de2e6a15b2112d307edc2366bf8f76b61b715d3fb51b510f7']
+    }
+  },
   solidity: {
     compilers:[
       {    
