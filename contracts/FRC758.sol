@@ -437,38 +437,40 @@ abstract contract FRC758 is IFRC758 {
 
         uint256 minBalance = timeBalanceOf(from, tokenStart, tokenEnd);
 
-		uint256 lastIndex = 0;
+		uint256 firstDeletedIndex = 0;
+
+        uint256 lastIndex = 0;
 
         uint256 _tokenStart = tokenStart;
         
 		uint256 next = headerIndex[from];
 
-		while(next > 0) {
-		SlicedToken memory st = balances[from][next];
-            if( tokenStart < st.tokenStart || (st.next == 0 && tokenEnd > st.tokenEnd)) {
-				break;
-            }
 
-            if(tokenStart >= st.tokenEnd) {
+		while(next > 0) {
+		    SlicedToken memory st = balances[from][next];
+            if(tokenStart >= st.tokenEnd || tokenEnd <= st.tokenStart) {
+                lastIndex = next;
                 next = st.next;
                 continue;
             }
-            // if(lastIndex == 0 || amount > st.amount) {
-            //     amount =  st.amount;
-            // }
 
             delete balances[from][next];
-
-            if(tokenEnd <= st.tokenEnd) {
-                balances[from][st.next];
-                break;
+            if(firstDeletedIndex == 0) {
+                firstDeletedIndex = next; 
             }
-            
+
             tokenStart = st.tokenEnd;
             lastIndex = next;
             next = st.next;
         }
 
-        _mintSlice(from, minBalance, _tokenStart, tokenEnd);     
+        if(firstDeletedIndex != 0 && firstDeletedIndex != lastIndex) { // move last to first
+             balances[from][firstDeletedIndex] = balances[from][lastIndex];
+             delete balances[from][lastIndex];
+        }
+
+        if(minBalance > 0) {
+            _mintSlice(from, minBalance, _tokenStart, tokenEnd);  
+        }  
     }
 }

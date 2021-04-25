@@ -187,6 +187,7 @@ describe("FRC758", function () {
     expect(await frc758.timeBalanceOf(owner.address, now + 10, now + 20)).to.equal(0);
     expect(await frc758.timeBalanceOf(owner.address, now + 15, now + 18)).to.equal(0);
     expect(await frc758.timeBalanceOf(owner.address, now + 15, now + 20)).to.equal(0);
+    
     expect(await frc758.timeBalanceOf(owner.address, now + 18, now + 20)).to.equal(30);
   });
 
