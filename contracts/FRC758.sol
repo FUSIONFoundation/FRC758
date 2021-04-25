@@ -315,7 +315,7 @@ abstract contract FRC758 is IFRC758 {
                     return;
                 }
             }
-            if( currSt.tokenEnd > st.tokenStart && currSt.tokenEnd >= st.tokenStart) {
+            if(currSt.tokenEnd >= st.tokenStart) {
                   uint256 currStTokenEnd = currSt.tokenEnd;
                   if(currSt.tokenStart < st.tokenStart) {
                     currSt.tokenEnd = st.tokenStart; 
@@ -390,8 +390,8 @@ abstract contract FRC758 is IFRC758 {
                     currSt.amount -= st.amount;
                     uint256 currStTokenEnd = currSt.tokenEnd;
                     currSt.tokenEnd = st.tokenEnd;
-                    uint256 index = _addSlice(addr, st.tokenEnd, currStTokenEnd, currStAmount,  currSt.next);
-                    currSt.next = index;
+                    uint256 index0 = _addSlice(addr, st.tokenEnd, currStTokenEnd, currStAmount,  currSt.next);
+                    currSt.next = index0;
                     break;
                 }
                 currSt.amount -= st.amount;
@@ -401,14 +401,14 @@ abstract contract FRC758 is IFRC758 {
             }
 
             if(currSt.tokenStart < st.tokenStart ) { 
-                uint256 index = _addSlice(addr, currSt.tokenStart, st.tokenStart, currSt.amount, current);
+                uint256 index1 = _addSlice(addr, currSt.tokenStart, st.tokenStart, currSt.amount, current);
                 if(current == headerIndex[addr]) { 
-                    headerIndex[addr] = index; 
+                    headerIndex[addr] = index1; 
                 }else {
                     uint256 _current = headerIndex[addr];
                     while(_current > 0) {
                         if(balances[addr][_current].next == current)  {
-                            balances[addr][_current].next = index;
+                            balances[addr][_current].next = index1;
                             break;
                         }
                         _current = balances[addr][_current].next;
@@ -422,8 +422,8 @@ abstract contract FRC758 is IFRC758 {
 
                 if(currStTokenEnd >= st.tokenEnd) {
                     if(currStTokenEnd > st.tokenEnd) {
-                         uint256 index1 = _addSlice(addr, st.tokenEnd, currStTokenEnd, currStAmunt, currSt.next);
-                         currSt.next = index1;
+                         uint256 index2 = _addSlice(addr, st.tokenEnd, currStTokenEnd, currStAmunt, currSt.next);
+                         currSt.next = index2;
                     }
                     break; 
                 }
@@ -434,17 +434,11 @@ abstract contract FRC758 is IFRC758 {
     }
 
     function _clean(address from, uint256 tokenStart, uint256 tokenEnd) internal {
-
         uint256 minBalance = timeBalanceOf(from, tokenStart, tokenEnd);
-
 		uint256 firstDeletedIndex = 0;
-
         uint256 lastIndex = 0;
-
         uint256 _tokenStart = tokenStart;
-        
 		uint256 next = headerIndex[from];
-
 
 		while(next > 0) {
 		    SlicedToken memory st = balances[from][next];
