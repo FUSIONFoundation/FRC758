@@ -5,7 +5,7 @@ import './FRC758.sol';
 import './Controllable.sol';
 import "@nomiclabs/buidler/console.sol";
 
-contract ExampleToken is FRC758, Controllable {
+contract ChaingeToken is FRC758, Controllable {
 
     uint256 public circulationSupply = 0;
 

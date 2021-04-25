@@ -3,7 +3,7 @@ const { expect } = require("chai");
 describe("FRC758", function () {
   it("mintTimeSlice1", async function () {
     const [owner, other] = await ethers.getSigners();
-    const FRC758 = await ethers.getContractFactory("ExampleToken");
+    const FRC758 = await ethers.getContractFactory("ChaingeToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18, 100000000000000);
 
     await frc758.deployed();
