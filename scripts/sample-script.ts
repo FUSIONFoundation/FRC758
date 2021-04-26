@@ -64,27 +64,27 @@ async function main() {
 
   await sleep()
 
-  now = 10000;
+  now = now + 10000;
 
-  await exampleToken.mintTimeSlice(owner.address, 10, now, now+10);
+  await exampleToken.mintTimeSlice(owner.address, 1000, now, now+100);
 
   // await sleep()
-  await exampleToken.mintTimeSlice(owner.address, 20, now+12, now+15);
+  await exampleToken.mintTimeSlice(owner.address, 2000, now + 50, now+200);
+
+  // await sleep()
+  // await exampleToken.mintTimeSlice(owner.address, 30, now + 17, now + 20);
+
+  // await sleep()
+  // await exampleToken.mintTimeSlice(owner.address, 40, now + 19, now + 25);
+  // // console.log('s1')
 
   await sleep()
-  await exampleToken.mintTimeSlice(owner.address, 30, now + 17, now + 20);
 
-  await sleep()
-  await exampleToken.mintTimeSlice(owner.address, 40, now + 19, now + 25);
-  // console.log('s1')
-
-  await sleep()
-
-  const res = await exampleToken.sliceOf(owner.address);
-  console.log('res', res)
-  res[0].forEach(element => {
-    console.log('slice', parseInt(element._hex))
-  });
+  // const res = await exampleToken.sliceOf(owner.address);
+  // console.log('res', res)
+  // res[0].forEach(element => {
+  //   console.log('slice', parseInt(element._hex))
+  // });
 
   // await exampleToken.clean(owner.address,  now, now + 15);
 
@@ -98,26 +98,47 @@ async function main() {
 
   // console.log('s1')
 
-  const balance = await exampleToken.timeBalanceOf(owner.address, now + 17, now + 19);
-  console.log('17-19', parseInt(balance._hex));
+  // const balance = await exampleToken.timeBalanceOf(owner.address, now + 17, now + 19);
+  // console.log('17-19', parseInt(balance._hex));
 
-  // const balance2 = await exampleToken.timeBalanceOf(owner.address, now, now + 999999919);
-  // console.log('all', parseInt(balance2._hex));
-  const balance2 = await exampleToken.timeBalanceOf(owner.address, now+19, now + 20);
-  console.log('19-20', parseInt(balance2._hex));
-  const balance3 = await exampleToken.timeBalanceOf(owner.address, now+20, now + 25);
-  console.log('20-25', parseInt(balance3._hex));
+
+  // // const balance2 = await exampleToken.timeBalanceOf(owner.address, now, now + 999999919);
+  // // console.log('all', parseInt(balance2._hex));
+  // const balance2 = await exampleToken.timeBalanceOf(owner.address, now+19, now + 20);
+  // console.log('19-20', parseInt(balance2._hex));
+  // const balance3 = await exampleToken.timeBalanceOf(owner.address, now+20, now + 25);
+  // console.log('20-25', parseInt(balance3._hex));
+
+
   // await sleep()
   // await exampleToken.transferFrom(owner.address, '0xcd3b766ccdd6ae721141f452c550ca635964ce71', 100000); 
   // await sleep()
   // const balance2 = await exampleToken.balanceOf(owner.address);
   // console.log('b2',parseInt(balance2._hex));
 
-  // await sleep()
-  // await exampleToken.timeSliceTransferFrom(owner.address, "0xcd3b766ccdd6ae721141f452c550ca635964ce71", 1000, now, now + 1000000000)
+  await sleep()
+  const balance1 = await exampleToken.timeBalanceOf(owner.address, now+50, now + 100);
+  console.log('bef', parseInt(balance1._hex));
+  await exampleToken.timeSliceTransferFrom(owner.address, "0xcd3b766ccdd6ae721141f452c550ca635964ce71", 1000, now, now + 100)
+  const balance2 = await exampleToken.timeBalanceOf(owner.address, now+50, now + 100);
+  console.log('aft', parseInt(balance2._hex));
 
-  // await sleep()
+  const balance3 = await exampleToken.timeBalanceOf(owner.address, now+100, now + 200);
+  console.log('100-200', parseInt(balance3._hex));
+  await sleep()
 
+  const balance4 = await exampleToken.timeBalanceOf(owner.address, now, now + 50);
+  console.log('0-50', parseInt(balance4._hex));
+  await sleep()
+
+
+  const balance5 = await exampleToken.timeBalanceOf(owner.address, now, now + 100);
+  console.log('0-100', parseInt(balance5._hex));
+  await sleep()
+
+  const balance6 = await exampleToken.timeBalanceOf(owner.address, now + 50, now + 100);
+  console.log('50-100', parseInt(balance6._hex));
+  await sleep()
   // await exampleToken.timeSliceTransferFrom(owner.address, "0xcd3b766ccdd6ae721141f452c550ca635964ce71", 1000, now + 1000000000, now + 1000000001)
 
   // await sleep()

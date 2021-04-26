@@ -134,6 +134,10 @@ abstract contract FRC758 is IFRC758 {
                 next = st.next;
                 continue;
             }
+            if(st.amount == 0 ) {
+                amount = 0;
+                break;
+            }
             if(amount == 0 || amount > st.amount) {
                 amount =  st.amount;
             }
@@ -160,7 +164,7 @@ abstract contract FRC758 is IFRC758 {
         return _spender == _from || isApprovedForAll(_from, _spender);
     }
 
-   function transferFrom(address sender, address _recipient, uint256 amount) public override returns (bool) { //  转全段的, 优先转balance 再试图转balances
+   function transferFrom(address sender, address _recipient, uint256 amount) public override returns (bool) { 
         _validateAddress(sender);
         _validateAddress(_recipient);
         _validateAmount(amount);
@@ -199,7 +203,7 @@ abstract contract FRC758 is IFRC758 {
 
         uint256 _amount = amount.sub(timeBalance); 
 
-        if(timeBalance !=0) {
+        if(timeBalance != 0) {
             SlicedToken memory st = SlicedToken({amount: timeBalance, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0}); 
              _subSliceFromBalance(_from, st);  
         }
@@ -378,6 +382,7 @@ abstract contract FRC758 is IFRC758 {
 		require(count != 0, 'Empty slice items');
 
         uint256 current = headerIndex[addr];
+          
         do {
             SlicedToken storage currSt = balances[addr][current]; 
 
@@ -456,10 +461,7 @@ abstract contract FRC758 is IFRC758 {
 		while(next > 0) {
 		    SlicedToken memory st = balances[from][next];
 
-            uint256 t = timeBalanceOf(from, 10017, 10019);
-
             if(tokenEnd < st.tokenStart) {
-                uint256 count = ownedSlicedTokensCount[from];
                 lastIndex = next;
                 break;
             }
@@ -484,8 +486,6 @@ abstract contract FRC758 is IFRC758 {
              balances[from][firstDeletedIndex] = balances[from][lastIndex];
              delete balances[from][lastIndex];
         }
-
-        uint256 t1 = timeBalanceOf(from, 10017, 10019);
 
         if(minBalance > 0) {
             _mintSlice(from, minBalance, _tokenStart, tokenEnd);  
