@@ -309,7 +309,7 @@ describe("FRC758", function () {
     await frc758.mintTimeSlice(owner.address, amount4, now + 19, now + 25);
     // 故意clean错误的时间段，其结果应该为0
     await frc758.clean(owner.address, now, now + 15);
-    await frc758.clean(owner.address, now + 17, now + 25);
+    // await frc758.clean(owner.address, now + 17, now + 25);
     expect(await frc758.timeBalanceOf(owner.address, now, now + 10)).to.equal(0);
     expect(await frc758.timeBalanceOf(owner.address, now, now + 12)).to.equal(0);
     expect(await frc758.timeBalanceOf(owner.address, now, now + 15)).to.equal(0);
@@ -331,6 +331,7 @@ describe("FRC758", function () {
     expect(await frc758.timeBalanceOf(owner.address, now + 15, now + 19)).to.equal(0);
     expect(await frc758.timeBalanceOf(owner.address, now + 15, now + 20)).to.equal(0);
     expect(await frc758.timeBalanceOf(owner.address, now + 15, now + 25)).to.equal(0);
+
     expect(await frc758.timeBalanceOf(owner.address, now + 17, now + 19)).to.equal(30);
     expect(await frc758.timeBalanceOf(owner.address, now + 17, now + 20)).to.equal(30);
     expect(await frc758.timeBalanceOf(owner.address, now + 17, now + 25)).to.equal(30);

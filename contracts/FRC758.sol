@@ -161,7 +161,7 @@ abstract contract FRC758 is IFRC758 {
         uint256 _amount = amount.sub(balance[sender]);        
         balance[sender] = 0;
 
-        SlicedToken memory st = SlicedToken({amount: amount, tokenStart: block.timestamp, tokenEnd: MAX_TIME, next: 0});
+        SlicedToken memory st = SlicedToken({amount: _amount, tokenStart: block.timestamp, tokenEnd: MAX_TIME, next: 0});
         _subSliceFromBalance(sender, st);
 
         balance[_recipient] = balance[_recipient].add(amount);
