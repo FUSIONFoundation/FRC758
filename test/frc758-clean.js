@@ -309,7 +309,7 @@ describe("FRC758", function () {
     await frc758.mintTimeSlice(owner.address, amount4, now + 19, now + 25);
     // 故意clean错误的时间段，其结果应该为0
     await frc758.clean(owner.address, now, now + 15);
-    // await frc758.clean(owner.address, now + 17, now + 25);
+    await frc758.clean(owner.address, now + 17, now + 25);
     expect(await frc758.timeBalanceOf(owner.address, now, now + 10)).to.equal(0);
     expect(await frc758.timeBalanceOf(owner.address, now, now + 12)).to.equal(0);
     expect(await frc758.timeBalanceOf(owner.address, now, now + 15)).to.equal(0);
@@ -354,7 +354,7 @@ describe("FRC758", function () {
     await frc758.mintTimeSlice(owner.address, amount2, now + 12, now + 15);
     await frc758.mintTimeSlice(owner.address, amount3, now + 17, now + 20);
     await frc758.mintTimeSlice(owner.address, amount4, now + 19, now + 20);
-    await frc758.clean(owner.address, now + 17, now + 25);
+    await frc758.clean(owner.address, now + 17, now + 20);
     expect(await frc758.timeBalanceOf(owner.address, now, now + 10)).to.equal(10);
     expect(await frc758.timeBalanceOf(owner.address, now, now + 15)).to.equal(0);
     expect(await frc758.timeBalanceOf(owner.address, now, now + 17)).to.equal(0);
@@ -372,8 +372,98 @@ describe("FRC758", function () {
     expect(await frc758.timeBalanceOf(owner.address, now + 15, now + 17)).to.equal(0);
     expect(await frc758.timeBalanceOf(owner.address, now + 15, now + 19)).to.equal(0);
     expect(await frc758.timeBalanceOf(owner.address, now + 15, now + 20)).to.equal(0);
+
     expect(await frc758.timeBalanceOf(owner.address, now + 17, now + 19)).to.equal(30);
+
     expect(await frc758.timeBalanceOf(owner.address, now + 17, now + 20)).to.equal(30);
     expect(await frc758.timeBalanceOf(owner.address, now + 19, now + 20)).to.equal(30);
+  });
+
+  it("0-10 12-15 0-15", async function () {
+    const [owner, other] = await ethers.getSigners();
+    const FRC758 = await ethers.getContractFactory("ChaingeToken");
+    const frc758 = await FRC758.deploy("Hello", "HH", 18, 100000000000000);
+    await frc758.deployed();
+    const now = Date.parse(new Date()) / 1000;
+    const amount1 = 10;
+    const amount2 = 20;
+    const amount3 = 30;
+    const amount4 = 40;
+    await frc758.mintTimeSlice(owner.address, amount1, now, now + 10);
+    await frc758.mintTimeSlice(owner.address, amount2, now + 12, now + 15);
+    await frc758.mintTimeSlice(owner.address, amount3, now, now + 15);
+    await frc758.clean(owner.address, now + 0, now + 15);
+
+    expect(await frc758.timeBalanceOf(owner.address, now, now + 10)).to.equal(30);
+    expect(await frc758.timeBalanceOf(owner.address, now, now + 15)).to.equal(30);
+  });
+
+  it("0-10 12-15 17-20 19-20", async function () {
+    const [owner, other] = await ethers.getSigners();
+    const FRC758 = await ethers.getContractFactory("ChaingeToken");
+    const frc758 = await FRC758.deploy("Hello", "HH", 18, 100000000000000);
+    await frc758.deployed();
+    const now = Date.parse(new Date()) / 1000;
+    const amount1 = 10;
+    const amount2 = 20;
+    const amount3 = 30;
+    const amount4 = 40;
+    await frc758.mintTimeSlice(owner.address, amount1, now, now + 10);
+    await frc758.mintTimeSlice(owner.address, amount2, now + 12, now + 15);
+    await frc758.mintTimeSlice(owner.address, amount3, now, now + 15);
+    await frc758.clean(owner.address, now + 12, now + 15);
+
+    expect(await frc758.timeBalanceOf(owner.address, now, now + 10)).to.equal(40);
+    expect(await frc758.timeBalanceOf(owner.address, now, now + 15)).to.equal(30);
+    expect(await frc758.timeBalanceOf(owner.address, now, now + 12)).to.equal(30);
+    expect(await frc758.timeBalanceOf(owner.address, now+10, now + 12)).to.equal(30);
+    expect(await frc758.timeBalanceOf(owner.address, now+10, now + 15)).to.equal(30);
+    expect(await frc758.timeBalanceOf(owner.address, now+12, now + 15)).to.equal(50);
+  });
+
+  it("0-18446744073709551615", async function () {
+    const [owner, other] = await ethers.getSigners();
+    const FRC758 = await ethers.getContractFactory("ChaingeToken");
+    const frc758 = await FRC758.deploy("Hello", "HH", 18, 100000000000000);
+    await frc758.deployed();
+    const now = Date.parse(new Date()) / 1000;
+    const amount1 = 10;
+    const amount2 = 20;
+    const amount3 = 30;
+    const amount4 = 40;
+    await frc758.mintTimeSlice(owner.address, amount1, now, '18446744073709551615');
+    await frc758.mintTimeSlice(owner.address, amount2, now + 12, now + 15);
+    await frc758.mintTimeSlice(owner.address, amount3, now, now + 25);
+    await frc758.clean(owner.address, now, '18446744073709551615');
+
+    expect(await frc758.timeBalanceOf(owner.address, now, '18446744073709551615')).to.equal(10);
+    expect(await frc758.timeBalanceOf(owner.address, now, now + 15)).to.equal(10);
+    expect(await frc758.timeBalanceOf(owner.address, now, now + 12)).to.equal(10);
+    expect(await frc758.timeBalanceOf(owner.address, now+10, now + 12)).to.equal(10);
+    expect(await frc758.timeBalanceOf(owner.address, now+10, now + 15)).to.equal(10);
+    expect(await frc758.timeBalanceOf(owner.address, now+12, now + 15)).to.equal(10);
+  });
+
+  it("0-18446744073709551615", async function () {
+    const [owner, other] = await ethers.getSigners();
+    const FRC758 = await ethers.getContractFactory("ChaingeToken");
+    const frc758 = await FRC758.deploy("Hello", "HH", 18, 100000000000000);
+    await frc758.deployed();
+    const now = Date.parse(new Date()) / 1000;
+    const amount1 = 10;
+    const amount2 = 20;
+    const amount3 = 30;
+    const amount4 = 40;
+    await frc758.mintTimeSlice(owner.address, amount1, now, '18446744073709551615');
+    await frc758.mintTimeSlice(owner.address, amount2, now + 12, now + 15);
+    await frc758.mintTimeSlice(owner.address, amount3, now, now + 25);
+    await frc758.clean(owner.address, now + 15, '18446744073709551615');
+
+    expect(await frc758.timeBalanceOf(owner.address, now, now + 12)).to.equal(40);
+    expect(await frc758.timeBalanceOf(owner.address, now, now + 15)).to.equal(40);
+    expect(await frc758.timeBalanceOf(owner.address, now, '18446744073709551615')).to.equal(10);
+    expect(await frc758.timeBalanceOf(owner.address, now+10, now + 12)).to.equal(40);
+    expect(await frc758.timeBalanceOf(owner.address, now+12, now + 15)).to.equal(60);
+    expect(await frc758.timeBalanceOf(owner.address, now+15, now + 25)).to.equal(10);
   });
 });

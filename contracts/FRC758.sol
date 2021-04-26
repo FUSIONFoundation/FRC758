@@ -70,12 +70,17 @@ abstract contract FRC758 is IFRC758 {
 
     function sliceOf(address from) public view override returns (uint256[] memory, uint256[] memory, uint256[] memory) {
         _validateAddress(from);
-        uint header = headerIndex[from];
-        if(header == 0) {
+        uint256 header = headerIndex[from];
+      
+        if(header == 0 &&  balance[from] == 0) {
             return (new uint256[](0), new uint256[](0), new uint256[](0));
         }
+
         uint256 count = 0;
-     
+        if(balance[from] > 0) {
+            count = 1;
+        }
+ 
         while(header > 0) {
 		SlicedToken memory st = balances[from][header];
             if(block.timestamp < st.tokenEnd) {
@@ -84,11 +89,19 @@ abstract contract FRC758 is IFRC758 {
             header = st.next;
         }
         uint256 allCount = ownedSlicedTokensCount[from];
+
         uint256[] memory amountArray = new uint256[](count);
         uint256[] memory tokenStartArray = new uint256[](count);
         uint256[] memory tokenEndArray = new uint256[](count);
-        
+
         uint256 i = 0;
+        if(balance[from] > 0) {
+            i = 1;
+            amountArray[0] = balance[from];
+            tokenStartArray[0] = 0;
+            tokenEndArray[0] = MAX_TIME;
+        }
+        
         for (uint256 ii = 1; ii < allCount+1; ii++) {
             if(block.timestamp >= balances[from][ii].tokenEnd) {
                continue;
@@ -169,14 +182,14 @@ abstract contract FRC758 is IFRC758 {
         return true;
     }
     
-    function timeSliceTransferFrom(address _from, address _to, uint256 amount, uint256 tokenStart, uint256 tokenEnd) public override { // 切时间转, 优先转slice账户, 不够的再试图切balance
+    function timeSliceTransferFrom(address _from, address _to, uint256 amount, uint256 tokenStart, uint256 tokenEnd) public override {
         _validateAddress(_from);
         _validateAddress(_to);
         _validateAmount(amount);
         _checkRights(isApprovedOrOwner(msg.sender, _from));
         require(_from != _to, "FRC758: can not send to yourself");
 
-        uint256 timeBalance = timeBalanceOf(_from, tokenStart, tokenEnd); // 情况1 slice账户直接满足，
+        uint256 timeBalance = timeBalanceOf(_from, tokenStart, tokenEnd); 
         if(amount <= timeBalance) {
             SlicedToken memory st = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
             _subSliceFromBalance(_from, st);
@@ -184,27 +197,25 @@ abstract contract FRC758 is IFRC758 {
             return;
         }
 
-        // 情况2 slice账户不满足，
-        uint256 _amount = amount.sub(timeBalance); // 多出来的amount
+        uint256 _amount = amount.sub(timeBalance); 
 
         if(timeBalance !=0) {
-            SlicedToken memory st = SlicedToken({amount: timeBalance, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0}); // 减掉这个时间内所有余额
+            SlicedToken memory st = SlicedToken({amount: timeBalance, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0}); 
              _subSliceFromBalance(_from, st);  
         }
 
-         balance[_from] = balance[_from].sub(_amount); // 多出来的减全段的余额
-        // 找零 判断是否要加左边还是右边
-        if(tokenStart > block.timestamp) { // 需要留前段
+         balance[_from] = balance[_from].sub(_amount);
+
+        if(tokenStart > block.timestamp) { 
             SlicedToken memory leftSt = SlicedToken({amount: _amount, tokenStart: 0, tokenEnd: tokenStart, next: 0});
              _addSliceToBalance(_from, leftSt); 
         }
 
-        if(tokenEnd < MAX_TIME) { // 需要留后段
+        if(tokenEnd < MAX_TIME) { 
             SlicedToken memory rightSt = SlicedToken({amount: _amount, tokenStart: tokenEnd, tokenEnd: MAX_TIME, next: 0});
             _addSliceToBalance(_from, rightSt); 
         }
 
-        //-------给to 地址加钱------ 是全段的，就直接加在全段账户
         if(tokenStart <= block.timestamp && tokenEnd == MAX_TIME) {
              balance[_from] =  balance[_from].add(amount);
              return;
@@ -315,9 +326,9 @@ abstract contract FRC758 is IFRC758 {
                     return;
                 }
             }
-            if(currSt.tokenEnd >= st.tokenStart) {
+            if(currSt.tokenEnd > st.tokenStart) {
                   uint256 currStTokenEnd = currSt.tokenEnd;
-                  if(currSt.tokenStart < st.tokenStart) {
+                  if (currSt.tokenStart < st.tokenStart) {
                     currSt.tokenEnd = st.tokenStart; 
                     uint256 index = _addSlice(addr, st.tokenStart, currStTokenEnd, currSt.amount + st.amount, currSt.next);
                     currSt.next = index;
@@ -327,6 +338,7 @@ abstract contract FRC758 is IFRC758 {
                         continue;
                     }
                   }
+    
                   currSt.tokenStart = st.tokenStart;
                   _mergeAmount(currSt, st.amount);
                   current = currSt.next;
@@ -341,6 +353,7 @@ abstract contract FRC758 is IFRC758 {
                 ownedSlicedTokensCount[addr] += 1;
                 return;
             }
+
             if(currSt.next == 0 && currSt.tokenEnd <= st.tokenStart) {
                 uint256 index = _addSlice(addr, st.tokenStart, st.tokenEnd, st.amount, 0);
                 currSt.next = index;
@@ -442,6 +455,15 @@ abstract contract FRC758 is IFRC758 {
 
 		while(next > 0) {
 		    SlicedToken memory st = balances[from][next];
+
+            uint256 t = timeBalanceOf(from, 10017, 10019);
+
+            if(tokenEnd < st.tokenStart) {
+                uint256 count = ownedSlicedTokensCount[from];
+                lastIndex = next;
+                break;
+            }
+
             if(tokenStart >= st.tokenEnd || tokenEnd <= st.tokenStart) {
                 lastIndex = next;
                 next = st.next;
@@ -462,6 +484,8 @@ abstract contract FRC758 is IFRC758 {
              balances[from][firstDeletedIndex] = balances[from][lastIndex];
              delete balances[from][lastIndex];
         }
+
+        uint256 t1 = timeBalanceOf(from, 10017, 10019);
 
         if(minBalance > 0) {
             _mintSlice(from, minBalance, _tokenStart, tokenEnd);  
