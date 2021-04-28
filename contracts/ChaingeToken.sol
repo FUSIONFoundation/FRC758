@@ -28,9 +28,9 @@ contract ChaingeToken is FRC758, Controllable {
     }
 
     // If you want to run a test case, you can turn it on. The production environment does not allow this function
-    // function mintTimeSlice(address _from, uint256 amount, uint256 tokenStart, uint256 tokenEnd) public onlyController {
-    //     _mintSlice(_from, amount, tokenStart, tokenEnd);
-    // }
+    function mintTimeSlice(address _from, uint256 amount, uint256 tokenStart, uint256 tokenEnd) public onlyController {
+        _mintSlice(_from, amount, tokenStart, tokenEnd);
+    }
 
     function balanceOf(address account) public view returns (uint256) {
         return timeBalanceOf(account, block.timestamp, MAX_TIME) + balance[account];

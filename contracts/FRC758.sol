@@ -117,16 +117,23 @@ abstract contract FRC758 is IFRC758 {
 
     function timeBalanceOf(address from, uint256 tokenStart, uint256 tokenEnd) public override view returns(uint256) {
 		if (tokenStart >= tokenEnd) {
+             console.log('tokenStart >= tokenEnd' , tokenStart, tokenEnd);
            return 0;
 		}
 		uint256 next = headerIndex[from];
 		if(next == 0) {
+             console.log('next==0' , tokenStart, tokenEnd);
            return 0;
 		}
 		uint256 amount = 0;   
 		while(next > 0) {
 		SlicedToken memory st = balances[from][next];
+
+        console.log('timeBalanceOf time:', next, st.tokenStart, st.tokenEnd );
+        console.log('timeBalanceOf Amount and Next', st.amount, st.next);
+
             if( tokenStart < st.tokenStart || (st.next == 0 && tokenEnd > st.tokenEnd)) {
+                console.log('return0 A', tokenStart);
 				amount = 0;
 				break;
             }
@@ -135,6 +142,7 @@ abstract contract FRC758 is IFRC758 {
                 continue;
             }
             if(st.amount == 0 ) {
+                 console.log('return0 B');
                 amount = 0;
                 break;
             }
@@ -194,10 +202,14 @@ abstract contract FRC758 is IFRC758 {
         require(_from != _to, "FRC758: can not send to yourself");
 
         uint256 timeBalance = timeBalanceOf(_from, tokenStart, tokenEnd); 
+
+        console.log('timeBalance', timeBalance, amount);
+
         if(amount <= timeBalance) {
             SlicedToken memory st = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
             _subSliceFromBalance(_from, st);
             _addSliceToBalance(_to, st);
+            // uint256 timeBalance = timeBalanceOf(_from, tokenStart-99, tokenStart); 
             return;
         }
 
@@ -208,20 +220,40 @@ abstract contract FRC758 is IFRC758 {
              _subSliceFromBalance(_from, st);  
         }
 
-         balance[_from] = balance[_from].sub(_amount);
+        console.log('balance',  balance[_from]);
 
-        if(tokenStart > block.timestamp) { 
-            SlicedToken memory leftSt = SlicedToken({amount: _amount, tokenStart: 0, tokenEnd: tokenStart, next: 0});
-             _addSliceToBalance(_from, leftSt); 
-        }
+        balance[_from] = balance[_from].sub(_amount); // 剪掉 A账户数量, mint 三段。 剪掉的mint给to地址。剩余的mint给自己
 
-        if(tokenEnd < MAX_TIME) { 
+        // 挖走中间的， 找零 前段 的 和 后段的
+        if(tokenStart > block.timestamp && tokenEnd < MAX_TIME) { 
+            console.log(tokenStart > block.timestamp);
+            console.log('addleft and right', _amount, tokenStart,  block.timestamp);
+            SlicedToken memory leftSt = SlicedToken({amount: _amount, tokenStart: block.timestamp, tokenEnd: tokenStart, next: 0});
+             _addSliceToBalance(_from, leftSt);
+
             SlicedToken memory rightSt = SlicedToken({amount: _amount, tokenStart: tokenEnd, tokenEnd: MAX_TIME, next: 0});
             _addSliceToBalance(_from, rightSt); 
+            uint256 timeBalance = timeBalanceOf(_from, tokenStart-100, MAX_TIME); 
+            console.log('leftAmount:', timeBalance);
+            // 只找零 后段的 给自己
+        }else if(tokenStart <= block.timestamp) { 
+            console.log('addRightSt', _amount, tokenEnd, MAX_TIME);
+            SlicedToken memory rightSt = SlicedToken({amount: _amount, tokenStart: tokenEnd, tokenEnd: MAX_TIME, next: 0});
+            _addSliceToBalance(_from, rightSt); 
+            uint256 timeBalance = timeBalanceOf(_from, tokenStart-99, tokenStart); 
+              // 只s找零 前段的给自己
+        }else if(tokenEnd == MAX_TIME) { 
+            console.log('addLeftSt',_amount, 0, tokenStart);
+            SlicedToken memory leftSt = SlicedToken({amount: _amount, tokenStart: 0, tokenEnd: tokenStart, next: 0});
+            _addSliceToBalance(_from, leftSt);
+            uint256 timeBalance = timeBalanceOf(_from, block.timestamp, tokenStart); 
+            console.log('addLeftBalance:----Result', block.timestamp, tokenStart, timeBalance);
         }
 
+        // mint 给to地址
         if(tokenStart <= block.timestamp && tokenEnd == MAX_TIME) {
-             balance[_from] =  balance[_from].add(amount);
+            console.log('mint to');
+             balance[_to] = balance[_to].add(amount);
              return;
         }
 
@@ -273,12 +305,14 @@ abstract contract FRC758 is IFRC758 {
         do {
             SlicedToken storage currSt = balances[addr][current];
             if(st.tokenStart >= currSt.tokenEnd && currSt.next != 0 ) {
+                console.log('out this continue', current, st.tokenStart);
                 current = currSt.next;
                 continue;
             }
     
             if (currSt.tokenStart >= st.tokenEnd) {
                 uint256 index = _addSlice(addr, st.tokenStart, st.tokenEnd, st.amount, current);
+                console.log('_addSliceToBalance to left', index, current, headerIndex[addr]);
                 if(current == headerIndex[addr]) {
                     headerIndex[addr] = index; 
                 }

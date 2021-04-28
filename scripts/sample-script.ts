@@ -61,15 +61,14 @@ async function main() {
   // console.log(balance0)
 
 
-
   await sleep()
 
   now = now + 10000;
 
-  await exampleToken.mintTimeSlice(owner.address, 1000, now, now+100);
+  // await exampleToken.mintTimeSlice(owner.address, 1000, now+100, maxTime);
 
   // await sleep()
-  await exampleToken.mintTimeSlice(owner.address, 2000, now + 50, now+200);
+  // await exampleToken.mintTimeSlice(owner.address, 2000, now + 50, now+200);
 
   // await sleep()
   // await exampleToken.mintTimeSlice(owner.address, 30, now + 17, now + 20);
@@ -116,29 +115,29 @@ async function main() {
   // const balance2 = await exampleToken.balanceOf(owner.address);
   // console.log('b2',parseInt(balance2._hex));
 
-  await sleep()
-  const balance1 = await exampleToken.timeBalanceOf(owner.address, now+50, now + 100);
-  console.log('bef', parseInt(balance1._hex));
-  await exampleToken.timeSliceTransferFrom(owner.address, "0xcd3b766ccdd6ae721141f452c550ca635964ce71", 1000, now, now + 100)
-  const balance2 = await exampleToken.timeBalanceOf(owner.address, now+50, now + 100);
-  console.log('aft', parseInt(balance2._hex));
+  // await sleep()
+  // const balance1 = await exampleToken.timeBalanceOf(owner.address, now+50, now + 100);
+  // console.log('bef', parseInt(balance1._hex));
+  // await exampleToken.timeSliceTransferFrom(owner.address, "0xcd3b766ccdd6ae721141f452c550ca635964ce71", 1000, now, now + 100)
+  // const balance2 = await exampleToken.timeBalanceOf(owner.address, now+50, now + 100);
+  // console.log('aft', parseInt(balance2._hex));
 
-  const balance3 = await exampleToken.timeBalanceOf(owner.address, now+100, now + 200);
-  console.log('100-200', parseInt(balance3._hex));
-  await sleep()
+  // const balance3 = await exampleToken.timeBalanceOf(owner.address, now+100, now + 200);
+  // console.log('100-200', parseInt(balance3._hex));
+  // await sleep()
 
-  const balance4 = await exampleToken.timeBalanceOf(owner.address, now, now + 50);
-  console.log('0-50', parseInt(balance4._hex));
-  await sleep()
+  // const balance4 = await exampleToken.timeBalanceOf(owner.address, now, now + 50);
+  // console.log('0-50', parseInt(balance4._hex));
+  // await sleep()
 
 
-  const balance5 = await exampleToken.timeBalanceOf(owner.address, now, now + 100);
-  console.log('0-100', parseInt(balance5._hex));
-  await sleep()
+  // const balance5 = await exampleToken.timeBalanceOf(owner.address, now, now + 100);
+  // console.log('0-100', parseInt(balance5._hex));
+  // await sleep()
 
-  const balance6 = await exampleToken.timeBalanceOf(owner.address, now + 50, now + 100);
-  console.log('50-100', parseInt(balance6._hex));
-  await sleep()
+  // const balance6 = await exampleToken.timeBalanceOf(owner.address, now + 50, now + 100);
+  // console.log('50-100', parseInt(balance6._hex));
+  // await sleep()
   // await exampleToken.timeSliceTransferFrom(owner.address, "0xcd3b766ccdd6ae721141f452c550ca635964ce71", 1000, now + 1000000000, now + 1000000001)
 
   // await sleep()
