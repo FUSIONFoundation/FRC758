@@ -89,19 +89,41 @@ describe("safeTransferFrom", function () {
     const frc758 = await FRC758.deploy("Hello", "HH", 18, 100000000000000);
 
     await frc758.deployed();
-    const now = Date.parse(new Date()) / 1000 + 1000;
+    const now = Date.parse(new Date()) / 1000;
     const amount = 1000;
     const amount2 = 2000;
-    await frc758.mintTimeSlice(owner.address, amount, now, now + 100);
-    await frc758.mintTimeSlice(owner.address, amount2, now + 50, now + 200);
-    await frc758.timeSliceTransferFrom(owner.address, other.address, 1000, now + 65, now + 75);
-    await frc758.timeSliceTransferFrom(owner.address, other.address, 1000, now + 70, now + 72);
+    await frc758.mintTimeSlice(owner.address, amount, now, now + 1000);
+    await frc758.mintTimeSlice(owner.address, amount2, now + 500, now + 2000);
+    await frc758.timeSliceTransferFrom(owner.address, other.address, 1000, now + 650, now + 750);
+    // await frc758.timeSliceTransferFrom(owner.address, other.address, 1000, now + 700, now + 720);
+
+    const res = await frc758.sliceOf(owner.address)
+    const _res = res.map((val) => {
+      return val.map((v) => {
+        return parseInt(v._hex)
+      })
+    })
+
+    const format = []
+    for (let k in _res[0]) {
+      const amount = _res[0][k]
+      const start = _res[1][k] - now
+      const end = _res[2][k] - now 
+      format.push({
+        start,
+        end,
+        amount
+      })
+    }
+    console.log(format);
     // error
-    expect(await frc758.timeBalanceOf(owner.address, now, now + 50)).to.equal(1000);
+
+    expect(await frc758.timeBalanceOf(owner.address, now, now + 500)).to.equal(1000);
     expect(await frc758.timeBalanceOf(owner.address, now, now + 100)).to.equal(1000);
-    expect(await frc758.timeBalanceOf(owner.address, now + 50, now + 100)).to.equal(1000);
-    expect(await frc758.timeBalanceOf(other.address, now+70, now + 72)).to.equal(1000);
-    // expect(await frc758.timeBalanceOf(owner.address, now + 50, now + 100)).to.equal(amount);
+    expect(await frc758.timeBalanceOf(owner.address, now + 500, now + 1000)).to.equal(1000);
+    
+    expect(await frc758.timeBalanceOf(other.address, now+700, now + 720)).to.equal(1000);
+    expect(await frc758.timeBalanceOf(owner.address, now + 500, now + 1000)).to.equal(amount);
   })
 
   it("transferFrom ", async function () {

@@ -94,7 +94,9 @@ abstract contract FRC758 is IFRC758 {
     }
 
     function timeBalanceOf(address from, uint256 tokenStart, uint256 tokenEnd) public override view returns(uint256) {
+        console.log('rrrrrrrrrrrrrrrr', tokenStart, tokenEnd);
 		if (tokenStart >= tokenEnd) {
+            console.log('aaaaaaaaa');
            return 0;
 		}
 		uint256 next = headerIndex[from];
@@ -104,6 +106,8 @@ abstract contract FRC758 is IFRC758 {
 		uint256 amount = 0;   
 		while(next > 0) {
 		SlicedToken memory st = balances[from][next];
+        console.log(next);
+          console.log('eeeeeeeeeee', st.tokenStart, st.tokenEnd, st.amount);
             if( tokenStart < st.tokenStart || (st.next == 0 && tokenEnd > st.tokenEnd)) {
 				amount = 0;
 				break;
@@ -378,8 +382,9 @@ abstract contract FRC758 is IFRC758 {
     
         do {
             SlicedToken storage currSt = balances[addr][current]; 
-            // console.log('start sub Slice!!!!************************', st.tokenStart, st.tokenEnd, currSt.tokenStart);
-            if(currSt.tokenEnd <= st.tokenStart) { 
+            console.log('start sub Slice!!!!************************', st.tokenStart, st.tokenEnd, currSt.tokenStart);
+            if(currSt.tokenEnd < block.timestamp) { 
+                 console.log('this this this!');
                 headerIndex[addr] = currSt.next; 
                 current = currSt.next;
                 continue;
