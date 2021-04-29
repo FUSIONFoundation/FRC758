@@ -8,7 +8,8 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ChaingeToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18, 100000000000000);
     await frc758.deployed();
-    const now1 = Date.parse(new Date()) / 1000;
+    // const now1 = Date.parse(new Date()) / 1000;
+    const now1 = 0;
     const now2 = now1 + 10;
     const now3 = now1 + 10;
     const now4 = now1 + 15;
@@ -27,30 +28,30 @@ describe("FRC758", function () {
     expect(await frc758.timeBalanceOf(owner.address, now1, now4)).to.equal(5);
     expect(await frc758.timeBalanceOf(owner.address, now1, now6)).to.equal(5);
 
-    // expect(await frc758.timeBalanceOf(owner.address, now2, now4)).to.equal(15);
+    expect(await frc758.timeBalanceOf(owner.address, now2, now4)).to.equal(15);
 
-    const res = await frc758.sliceOf(owner.address)
-    const _res = res.map((val)=> {
-      return val.map((v)=> {
-        return BigInt(v._hex).toString()
-      })
-    })
+    // const res = await frc758.sliceOf(owner.address)
+    // const _res = res.map((val)=> {
+    //   return val.map((v)=> {
+    //     return BigInt(v._hex).toString()
+    //   })
+    // })
   
 
-    const format = []
-    for(let k in _res[0]) {
-      const amount = _res[0][k]
-      const start = _res[1][k]
-      const end = _res[2][k]
-      format.push({
-        start,
-        end,
-        amount
-      })
-    }
-    console.log(format);
+    // const format = []
+    // for(let k in _res[0]) {
+    //   const amount = _res[0][k]
+    //   const start = _res[1][k]
+    //   const end = _res[2][k]
+    //   format.push({
+    //     start,
+    //     end,
+    //     amount
+    //   })
+    // }
+    // console.log(format);
     
-    // expect(await frc758.timeBalanceOf(owner.address, now2, now6)).to.equal(15);
-    // expect(await frc758.timeBalanceOf(owner.address, now4, now6)).to.equal(30);
+    expect(await frc758.timeBalanceOf(owner.address, now2, now6)).to.equal(15);
+    expect(await frc758.timeBalanceOf(owner.address, now4, now6)).to.equal(30);
   });
 });

@@ -76,20 +76,20 @@ abstract contract FRC758 is IFRC758 {
         }
         uint256 count = ownedSlicedTokensCount[from];
 
-        uint256[] memory amountArray = new uint256[](count);
-        uint256[] memory tokenStartArray = new uint256[](count);
-        uint256[] memory tokenEndArray = new uint256[](count);
+        uint256[] memory amountArray = new uint256[](count+1);
+        uint256[] memory tokenStartArray = new uint256[](count+1);
+        uint256[] memory tokenEndArray = new uint256[](count +1);
         
         amountArray[0] = balance[from];
         tokenStartArray[0] = 0;
-        tokenEndArray[0] = MAX_TIME; 
+        tokenEndArray[0] = MAX_TIME;
         
-        for (uint256 ii = 1; ii < count; ii++) {
-            amountArray[ii] = balances[from][ii].amount;
-            tokenStartArray[ii] = balances[from][ii].tokenStart;
-            tokenEndArray[ii] = balances[from][ii].tokenEnd;
+        for (uint256 ii = 0; ii < count; ii++) {
+            amountArray[ii+1] = balances[from][ii +1].amount;
+            tokenStartArray[ii+1] = balances[from][ii+1].tokenStart;
+            tokenEndArray[ii+1] = balances[from][ii+1].tokenEnd;
         }
-    
+
         return (amountArray, tokenStartArray, tokenEndArray);
     }
 
@@ -105,8 +105,6 @@ abstract contract FRC758 is IFRC758 {
 		while(next > 0) {
 		SlicedToken memory st = balances[from][next];
             if( tokenStart < st.tokenStart || (st.next == 0 && tokenEnd > st.tokenEnd)) {
-                console.log('aa', tokenStart, tokenEnd );
-                console.log('bb', st.tokenStart, st.tokenEnd );
 				amount = 0;
 				break;
             }
@@ -380,7 +378,7 @@ abstract contract FRC758 is IFRC758 {
     
         do {
             SlicedToken storage currSt = balances[addr][current]; 
-            console.log('start sub Slice!!!!************************', st.tokenStart, st.tokenEnd, currSt.tokenStart);
+            // console.log('start sub Slice!!!!************************', st.tokenStart, st.tokenEnd, currSt.tokenStart);
             if(currSt.tokenEnd <= st.tokenStart) { 
                 headerIndex[addr] = currSt.next; 
                 current = currSt.next;
@@ -437,7 +435,7 @@ abstract contract FRC758 is IFRC758 {
                 uint256 currStTokenEnd = currSt.tokenEnd;
                 currSt.amount -= st.amount;
                 currSt.tokenStart = st.tokenStart;
-                currSt.tokenEnd = st.tokenEnd;
+                // currSt.tokenEnd = st.tokenEnd;
 
                 if(currStTokenEnd >= st.tokenEnd) {
                     if(currStTokenEnd > st.tokenEnd) {
