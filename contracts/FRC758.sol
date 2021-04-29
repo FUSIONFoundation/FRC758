@@ -71,47 +71,20 @@ abstract contract FRC758 is IFRC758 {
     function sliceOf(address from) public view override returns (uint256[] memory, uint256[] memory, uint256[] memory) {
         _validateAddress(from);
         uint256 header = headerIndex[from];
-      
         if(header == 0 &&  balance[from] == 0) {
             return (new uint256[](0), new uint256[](0), new uint256[](0));
         }
-
-        uint256 count = 0;
-        if(balance[from] > 0) {
-            count = 1;
-        }
- 
-        while(header > 0) {
-		SlicedToken memory st = balances[from][header];
-            if(block.timestamp < st.tokenEnd) {
-                count++;
-            }
-            header = st.next;
-        }
-        uint256 allCount = ownedSlicedTokensCount[from];
+        uint256 count = ownedSlicedTokensCount[from];
 
         uint256[] memory amountArray = new uint256[](count);
         uint256[] memory tokenStartArray = new uint256[](count);
         uint256[] memory tokenEndArray = new uint256[](count);
 
-        uint256 i = 0;
-        if(balance[from] > 0) {
-            i = 1;
-            amountArray[0] = balance[from];
-            tokenStartArray[0] = 0;
-            tokenEndArray[0] = MAX_TIME;
+        for (uint256 ii = 1; ii < count; ii++) {
+            amountArray[ii] = balances[from][ii].amount;
+            tokenStartArray[ii] = balances[from][ii].tokenStart;
+            tokenEndArray[ii] = balances[from][ii].tokenEnd;
         }
-        
-        for (uint256 ii = 1; ii < allCount+1; ii++) {
-            if(block.timestamp >= balances[from][ii].tokenEnd) {
-               continue;
-            }
-            amountArray[i] = balances[from][ii].amount;
-            tokenStartArray[i] = balances[from][ii].tokenStart;
-            tokenEndArray[i] = balances[from][ii].tokenEnd;
-            i++;
-        }
-        
         return (amountArray, tokenStartArray, tokenEndArray);
     }
 
@@ -127,6 +100,8 @@ abstract contract FRC758 is IFRC758 {
 		while(next > 0) {
 		SlicedToken memory st = balances[from][next];
             if( tokenStart < st.tokenStart || (st.next == 0 && tokenEnd > st.tokenEnd)) {
+                console.log('aa', tokenStart, tokenEnd );
+                console.log('bb', st.tokenStart, st.tokenEnd );
 				amount = 0;
 				break;
             }
@@ -193,9 +168,15 @@ abstract contract FRC758 is IFRC758 {
         _checkRights(isApprovedOrOwner(msg.sender, _from));
         require(_from != _to, "FRC758: can not send to yourself");
 
+        if(tokenStart < block.timestamp) tokenStart = block.timestamp;
+
+        require(tokenStart < tokenEnd, "FRC758: tokenStart>=tokenEnd");
+
         uint256 timeBalance = timeBalanceOf(_from, tokenStart, tokenEnd); 
+        console.log('checkout Balance', tokenStart, tokenEnd, timeBalance);
 
         if(amount <= timeBalance) {
+            console.log('sub of', tokenStart, tokenEnd);
             SlicedToken memory st = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
             _subSliceFromBalance(_from, st);
             _addSliceToBalance(_to, st);
@@ -394,7 +375,7 @@ abstract contract FRC758 is IFRC758 {
     
         do {
             SlicedToken storage currSt = balances[addr][current]; 
-            // console.log('start sub Slice!!!!************************', st.tokenStart, st.tokenEnd, currSt.tokenStart);
+            console.log('start sub Slice!!!!************************', st.tokenStart, st.tokenEnd, currSt.tokenStart);
             if(currSt.tokenEnd <= st.tokenStart) { 
                 headerIndex[addr] = currSt.next; 
                 current = currSt.next;
@@ -406,8 +387,11 @@ abstract contract FRC758 is IFRC758 {
             require(!(currSt.next == 0 && currSt.tokenEnd < st.tokenEnd), 'FRC758: subSlice time check fail point 2');
             require(!(currSt.tokenStart < st.tokenEnd && currSt.tokenStart > st.tokenStart), 'FRC758: subSlice time check fail point 3');
 
+            console.log(currSt.tokenStart == st.tokenStart, currSt.tokenEnd == st.tokenEnd);
             if(currSt.tokenStart == st.tokenStart && currSt.tokenEnd == st.tokenEnd) {
+                console.log(currSt.amount);
                 currSt.amount -= st.amount;
+                console.log(currSt.amount);
                 return;
             }
 
@@ -443,7 +427,7 @@ abstract contract FRC758 is IFRC758 {
                         _current = balances[addr][_current].next;
                     }
                 }
-                
+
                 uint256 currStAmunt = currSt.amount;
                 uint256 currStTokenEnd = currSt.tokenEnd;
                 currSt.amount -= st.amount;

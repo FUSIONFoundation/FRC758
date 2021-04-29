@@ -65,7 +65,7 @@ describe("safeTransferFrom", function () {
     const frc758 = await FRC758.deploy("Hello", "HH", 18, 100000000000000);
 
     await frc758.deployed();
-    const now = Date.parse(new Date()) / 1000;
+    let now = Date.parse(new Date()) / 1000;
     const basicTime = 30;
     const amount = 100;
     await frc758.mint(owner.address, amount);
@@ -82,7 +82,7 @@ describe("safeTransferFrom", function () {
 
     await frc758.timeSliceTransferFrom(owner.address, other.address, 1, now + 5000, '18446744073709551615'); //sub 0-100
     // error  
-    expect(await frc758.timeBalanceOf(owner.address, now + basicTime, now + basicTime + 5000)).to.equal(1);
+    expect(await frc758.timeBalanceOf(owner.address, Date.parse(new Date()) / 1000 +10, now + 5000)).to.equal(1);
     // console.log(now);
     // expect(await frc758.timeBalanceOf(owner.address, now + basicTime, now + basicTime + 99)).to.equal(1);
     // expect(await frc758.timeBalanceOf(owner.address, now + basicTime + 5000, '18446744073709551615')).to.equal(0);
