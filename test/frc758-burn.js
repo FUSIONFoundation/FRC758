@@ -8,8 +8,8 @@ describe("FRC758", function () {
     const FRC758 = await ethers.getContractFactory("ChaingeToken");
     const frc758 = await FRC758.deploy("Hello", "HH", 18, 100000000000000);
     await frc758.deployed();
-    // const now1 = Date.parse(new Date()) / 1000;
-    const now1 = 0;
+    const now1 = Date.parse(new Date()) / 1000;
+    // const now1 = 0;
     const now2 = now1 + 10;
     const now3 = now1 + 10;
     const now4 = now1 + 15;

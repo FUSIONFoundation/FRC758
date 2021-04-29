@@ -390,6 +390,11 @@ abstract contract FRC758 is IFRC758 {
                 continue;
             }
 
+            if(currSt.tokenEnd <= st.tokenStart) {
+                current = currSt.next;
+                continue;
+            }
+
             require(st.amount <= currSt.amount, 'FRC758: insufficient balance');
             require(currSt.tokenStart < st.tokenEnd, 'FRC758: subSlice time check fail point 1');
             require(!(currSt.next == 0 && currSt.tokenEnd < st.tokenEnd), 'FRC758: subSlice time check fail point 2');
