@@ -89,7 +89,7 @@ describe("safeTransferFrom", function () {
 
     await frc758.deployed();
     const now = Date.parse(new Date()) / 1000;
-    const basicTime = 30;
+    const basicTime = 100;
     const amount = 100;
     await frc758.mint(owner.address, amount);
 
