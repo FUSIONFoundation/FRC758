@@ -117,23 +117,16 @@ abstract contract FRC758 is IFRC758 {
 
     function timeBalanceOf(address from, uint256 tokenStart, uint256 tokenEnd) public override view returns(uint256) {
 		if (tokenStart >= tokenEnd) {
-             console.log('tokenStart >= tokenEnd' , tokenStart, tokenEnd);
            return 0;
 		}
 		uint256 next = headerIndex[from];
 		if(next == 0) {
-             console.log('next==0' , tokenStart, tokenEnd);
            return 0;
 		}
 		uint256 amount = 0;   
 		while(next > 0) {
 		SlicedToken memory st = balances[from][next];
-
-        console.log('timeBalanceOf time:', next, st.tokenStart, st.tokenEnd );
-        console.log('timeBalanceOf Amount and Next', st.amount, st.next);
-
             if( tokenStart < st.tokenStart || (st.next == 0 && tokenEnd > st.tokenEnd)) {
-                console.log('return0 A', tokenStart);
 				amount = 0;
 				break;
             }
@@ -142,7 +135,6 @@ abstract contract FRC758 is IFRC758 {
                 continue;
             }
             if(st.amount == 0 ) {
-                 console.log('return0 B');
                 amount = 0;
                 break;
             }
@@ -203,13 +195,10 @@ abstract contract FRC758 is IFRC758 {
 
         uint256 timeBalance = timeBalanceOf(_from, tokenStart, tokenEnd); 
 
-        console.log('timeBalance', timeBalance, amount);
-
         if(amount <= timeBalance) {
             SlicedToken memory st = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
             _subSliceFromBalance(_from, st);
             _addSliceToBalance(_to, st);
-            // uint256 timeBalance = timeBalanceOf(_from, tokenStart-99, tokenStart); 
             return;
         }
 
@@ -217,49 +206,33 @@ abstract contract FRC758 is IFRC758 {
 
         if(timeBalance != 0) {
             SlicedToken memory st = SlicedToken({amount: timeBalance, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0}); 
-             _subSliceFromBalance(_from, st);  
+            _subSliceFromBalance(_from, st);  
         }
 
-        console.log('balance',  balance[_from]);
+        balance[_from] = balance[_from].sub(_amount); 
 
-        balance[_from] = balance[_from].sub(_amount); // 剪掉 A账户数量, mint 三段。 剪掉的mint给to地址。剩余的mint给自己
+        change(_from, _amount, tokenStart, tokenEnd);
 
-        // 挖走中间的， 找零 前段 的 和 后段的
-        if(tokenStart > block.timestamp && tokenEnd < MAX_TIME) { 
-            console.log(tokenStart > block.timestamp);
-            console.log('addleft and right', _amount, tokenStart,  block.timestamp);
-            SlicedToken memory leftSt = SlicedToken({amount: _amount, tokenStart: block.timestamp, tokenEnd: tokenStart, next: 0});
-             _addSliceToBalance(_from, leftSt);
-
-            SlicedToken memory rightSt = SlicedToken({amount: _amount, tokenStart: tokenEnd, tokenEnd: MAX_TIME, next: 0});
-            _addSliceToBalance(_from, rightSt); 
-            uint256 timeBalance = timeBalanceOf(_from, tokenStart-100, MAX_TIME); 
-            console.log('leftAmount:', timeBalance);
-            // 只找零 后段的 给自己
-        }else if(tokenStart <= block.timestamp) { 
-            console.log('addRightSt', _amount, tokenEnd, MAX_TIME);
-            SlicedToken memory rightSt = SlicedToken({amount: _amount, tokenStart: tokenEnd, tokenEnd: MAX_TIME, next: 0});
-            _addSliceToBalance(_from, rightSt); 
-            uint256 timeBalance = timeBalanceOf(_from, tokenStart-99, tokenStart); 
-              // 只s找零 前段的给自己
-        }else if(tokenEnd == MAX_TIME) { 
-            console.log('addLeftSt',_amount, 0, tokenStart);
-            SlicedToken memory leftSt = SlicedToken({amount: _amount, tokenStart: 0, tokenEnd: tokenStart, next: 0});
-            _addSliceToBalance(_from, leftSt);
-            uint256 timeBalance = timeBalanceOf(_from, block.timestamp, tokenStart); 
-            console.log('addLeftBalance:----Result', block.timestamp, tokenStart, timeBalance);
-        }
-
-        // mint 给to地址
         if(tokenStart <= block.timestamp && tokenEnd == MAX_TIME) {
-            console.log('mint to');
              balance[_to] = balance[_to].add(amount);
              return;
         }
-
         SlicedToken memory toSt = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
         _addSliceToBalance(_to, toSt); 
+        
         emit Transfer(_from, _to, amount, tokenStart, tokenEnd);
+    }
+
+    function change(address _from, uint256 _amount, uint256 tokenStart, uint256 tokenEnd) internal {
+        if(tokenStart > block.timestamp) {
+              SlicedToken memory leftSt = SlicedToken({amount: _amount, tokenStart: block.timestamp, tokenEnd: tokenStart, next: 0});
+             _addSliceToBalance(_from, leftSt);
+        }
+        if(tokenEnd < MAX_TIME) {
+            if(tokenEnd < block.timestamp) tokenEnd =  block.timestamp;
+            SlicedToken memory rightSt = SlicedToken({amount: _amount, tokenStart: tokenEnd, tokenEnd: MAX_TIME, next: 0});
+            _addSliceToBalance(_from, rightSt); 
+        }
     }
 
     function _mint(address _from, uint256 amount) internal {
@@ -301,18 +274,20 @@ abstract contract FRC758 is IFRC758 {
              return;
         }
 
+        if(st.tokenStart >= st.tokenEnd) {
+            return;
+        }
+        
         uint256 current = headerIndex[addr];
         do {
             SlicedToken storage currSt = balances[addr][current];
             if(st.tokenStart >= currSt.tokenEnd && currSt.next != 0 ) {
-                console.log('out this continue', current, st.tokenStart);
                 current = currSt.next;
                 continue;
             }
     
             if (currSt.tokenStart >= st.tokenEnd) {
                 uint256 index = _addSlice(addr, st.tokenStart, st.tokenEnd, st.amount, current);
-                console.log('_addSliceToBalance to left', index, current, headerIndex[addr]);
                 if(current == headerIndex[addr]) {
                     headerIndex[addr] = index; 
                 }
@@ -416,10 +391,10 @@ abstract contract FRC758 is IFRC758 {
 		require(count != 0, 'Empty slice items');
 
         uint256 current = headerIndex[addr];
-          
+    
         do {
             SlicedToken storage currSt = balances[addr][current]; 
-
+            console.log('start sub Slice!!!!************************', st.tokenStart, st.tokenEnd, currSt.tokenStart);
             if(currSt.tokenEnd < block.timestamp) { 
                 headerIndex[addr] = currSt.next; 
                 current = currSt.next;
@@ -454,6 +429,8 @@ abstract contract FRC758 is IFRC758 {
 
             if(currSt.tokenStart < st.tokenStart ) { 
                 uint256 index1 = _addSlice(addr, currSt.tokenStart, st.tokenStart, currSt.amount, current);
+                console.log('<<<<<<<<', currSt.amount);
+                console.log(current, headerIndex[addr], index1);
                 if(current == headerIndex[addr]) { 
                     headerIndex[addr] = index1; 
                 }else {
@@ -466,11 +443,12 @@ abstract contract FRC758 is IFRC758 {
                         _current = balances[addr][_current].next;
                     }
                 }
-
+                // 应该就是这里有问题啊 , 中间的剪掉， 要判断是否是0 是0就要去掉。
                 uint256 currStAmunt = currSt.amount;
                 uint256 currStTokenEnd = currSt.tokenEnd;
                 currSt.amount -= st.amount;
                 currSt.tokenStart = st.tokenStart;
+                currSt.tokenEnd = st.tokenEnd;
 
                 if(currStTokenEnd >= st.tokenEnd) {
                     if(currStTokenEnd > st.tokenEnd) {
