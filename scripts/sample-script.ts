@@ -102,7 +102,7 @@ async function main() {
   // // console.log('s1')
 
   // await sleep()
-
+  
   const res = await exampleToken.sliceOf(owner.address)
   const _res = res.map((val)=> {
     return val.map((v)=> {

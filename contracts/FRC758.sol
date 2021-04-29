@@ -79,12 +79,17 @@ abstract contract FRC758 is IFRC758 {
         uint256[] memory amountArray = new uint256[](count);
         uint256[] memory tokenStartArray = new uint256[](count);
         uint256[] memory tokenEndArray = new uint256[](count);
-
+        
+        amountArray[0] = balance[from];
+        tokenStartArray[0] = 0;
+        tokenEndArray[0] = MAX_TIME; 
+        
         for (uint256 ii = 1; ii < count; ii++) {
             amountArray[ii] = balances[from][ii].amount;
             tokenStartArray[ii] = balances[from][ii].tokenStart;
             tokenEndArray[ii] = balances[from][ii].tokenEnd;
         }
+    
         return (amountArray, tokenStartArray, tokenEndArray);
     }
 
