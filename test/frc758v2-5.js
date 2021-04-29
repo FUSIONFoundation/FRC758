@@ -72,31 +72,27 @@ describe("safeTransferFrom", function () {
     // expect(await frc758.timeBalanceOf(owner.address, now, now + 50)).to.equal(amount);
 
     await frc758.timeSliceTransferFrom(owner.address, other.address, 2, now, now + 10000); //sub 0-100
-
-    // expect(await frc758.timeBalanceOf(owner.address, now, now + 5000)).to.equal(0);
-    // expect(await frc758.timeBalanceOf(owner.address, now + 5000, now + 10000)).to.equal(0);
-    // expect(await frc758.timeBalanceOf(owner.address, now + 5000, '18446744073709551615')).to.equal(0);
-    // expect(await frc758.timeBalanceOf(owner.address, now + 10000, '18446744073709551615')).to.equal(2);
+    expect(await frc758.timeBalanceOf(owner.address, now, now + 99)).to.equal(0);
+    expect(await frc758.timeBalanceOf(owner.address, now, now + 5000)).to.equal(0);
+    expect(await frc758.timeBalanceOf(owner.address, now + 5000, now + 10000)).to.equal(0);
+    expect(await frc758.timeBalanceOf(owner.address, now + 5000, '18446744073709551615')).to.equal(0);
+    expect(await frc758.timeBalanceOf(owner.address, now + 10000, '18446744073709551615')).to.equal(2);
 
 
     await frc758.timeSliceTransferFrom(owner.address, other.address, 1, now + 5000, '18446744073709551615'); //sub 0-100
-    // console.log('查询余额', now + 29, now + 100 - 1);
     // expect(await frc758.timeBalanceOf(owner.address, now, now + 5000)).to.equal(1);
+    expect(await frc758.timeBalanceOf(owner.address, now, now + 99)).to.equal(1);
     // expect(await frc758.timeBalanceOf(owner.address, now + 5000, '18446744073709551615')).to.equal(0);
-
-    expect(await frc758.timeBalanceOf(owner.address, now + 5000, now + 10000)).to.equal(0);
-
-    expect(await frc758.timeBalanceOf(owner.address, now + 10000, '18446744073709551615')).to.equal(2);
-    expect(await frc758.timeBalanceOf(owner.address, now+99, now+100)).to.equal(1);
-    expect(await frc758.timeBalanceOf(owner.address, now+100, '18446744073709551615')).to.equal(0);
+    // expect(await frc758.timeBalanceOf(owner.address, now + 5000, now + 10000)).to.equal(0);
+    // expect(await frc758.timeBalanceOf(owner.address, now + 10000, '18446744073709551615')).to.equal(2);
+    // expect(await frc758.timeBalanceOf(owner.address, now + 99, now + 100)).to.equal(1);
+    // expect(await frc758.timeBalanceOf(owner.address, now + 100, '18446744073709551615')).to.equal(0);
 
 
     // await frc758.timeSliceTransferFrom(owner.address, other.address, 1, now + 100, '18446744073709551615'); //sub 0-100
-
-
-    // expect(await frc758.timeBalanceOf(owner.address, now, now+99)).to.equal(2);
-    // expect(await frc758.timeBalanceOf(owner.address, now+99, now+100)).to.equal(0);
-    // expect(await frc758.timeBalanceOf(owner.address, now+100, '18446744073709551615')).to.equal(1);
+    // expect(await frc758.timeBalanceOf(owner.address, now, now + 99)).to.equal(2);
+    // expect(await frc758.timeBalanceOf(owner.address, now + 99, now + 100)).to.equal(0);
+    // expect(await frc758.timeBalanceOf(owner.address, now + 100, '18446744073709551615')).to.equal(0);
 
 
     // console.log('当前时间:', now+99, now+100);
