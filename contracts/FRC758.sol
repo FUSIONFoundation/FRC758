@@ -439,6 +439,7 @@ abstract contract FRC758 is IFRC758 {
 
                 if(currStTokenEnd >= st.tokenEnd) {
                     if(currStTokenEnd > st.tokenEnd) {
+                         currSt.tokenEnd = st.tokenEnd;
                          uint256 index2 = _addSlice(addr, st.tokenEnd, currStTokenEnd, currStAmunt, currSt.next);
                          currSt.next = index2;
                     }
