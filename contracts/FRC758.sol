@@ -394,8 +394,8 @@ abstract contract FRC758 is IFRC758 {
     
         do {
             SlicedToken storage currSt = balances[addr][current]; 
-            console.log('start sub Slice!!!!************************', st.tokenStart, st.tokenEnd, currSt.tokenStart);
-            if(currSt.tokenEnd < block.timestamp) { 
+            // console.log('start sub Slice!!!!************************', st.tokenStart, st.tokenEnd, currSt.tokenStart);
+            if(currSt.tokenEnd <= st.tokenStart) { 
                 headerIndex[addr] = currSt.next; 
                 current = currSt.next;
                 continue;
