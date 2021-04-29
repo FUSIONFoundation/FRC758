@@ -80,8 +80,9 @@ describe("safeTransferFrom", function () {
 
 
     await frc758.timeSliceTransferFrom(owner.address, other.address, 1, now + 5000, '18446744073709551615'); //sub 0-100
-    // expect(await frc758.timeBalanceOf(owner.address, now, now + 5000)).to.equal(1);
-    expect(await frc758.timeBalanceOf(owner.address, now, now + 99)).to.equal(1);
+    expect(await frc758.timeBalanceOf(owner.address, now +30, now + 5000)).to.equal(1);
+    console.log(now);
+    expect(await frc758.timeBalanceOf(owner.address, now + 30, now + 99)).to.equal(1);
     // expect(await frc758.timeBalanceOf(owner.address, now + 5000, '18446744073709551615')).to.equal(0);
     // expect(await frc758.timeBalanceOf(owner.address, now + 5000, now + 10000)).to.equal(0);
     // expect(await frc758.timeBalanceOf(owner.address, now + 10000, '18446744073709551615')).to.equal(2);
@@ -97,5 +98,30 @@ describe("safeTransferFrom", function () {
 
     // console.log('当前时间:', now+99, now+100);
     // expect(await frc758.timeBalanceOf(other.address, now + 99, now + 100)).to.equal(0);
+
+
+    const res = await frc758.sliceOf(owner.address)
+    const _res = res.map((val)=> {
+      return val.map((v)=> {
+        return parseInt(v._hex)
+      })
+    })
+  
+    // console.log(_res);
+    // const count = _res[0].length;
+  
+    const format = []
+    for(let k in _res[0]) {
+      const amount = _res[0][k]
+      const start = _res[1][k]
+      const end = _res[2][k]
+      format.push({
+        start,
+        end,
+        amount
+      })
+    }
+    console.log(format);
+  
   })
 })

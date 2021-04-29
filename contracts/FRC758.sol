@@ -443,7 +443,7 @@ abstract contract FRC758 is IFRC758 {
                         _current = balances[addr][_current].next;
                     }
                 }
-                // 应该就是这里有问题啊 , 中间的剪掉， 要判断是否是0 是0就要去掉。
+                
                 uint256 currStAmunt = currSt.amount;
                 uint256 currStTokenEnd = currSt.tokenEnd;
                 currSt.amount -= st.amount;
