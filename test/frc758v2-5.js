@@ -162,7 +162,7 @@ describe("safeTransferFrom", function () {
     await frc758.timeSliceTransferFrom(owner.address, other.address, 1, now + 10000, '18446744073709551615'); //sub 0-100
     
     expect(await frc758.timeBalanceOf(owner.address, now + basicTime, now + 9999)).to.equal(0);
-    expect(await frc758.timeBalanceOf(owner.address, now + 9999, now + 10000)).to.equal(0);
+    expect(await frc758.timeBalanceOf(owner.address, now + basicTime + 9999, now + 10000)).to.equal(0);
     expect(await frc758.timeBalanceOf(owner.address, now + basicTime + 10000, '18446744073709551615')).to.equal(1);
 
     // const res = await frc758.sliceOf(owner.address)

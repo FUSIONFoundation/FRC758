@@ -69,11 +69,11 @@ async function main() {
     console.log('balanceOf2', parseInt(balance2._hex));
     console.log( 666666666666, maxTime);
 
-    await exampleToken.timeSliceTransferFrom(owner.address, "0xcd3b766ccdd6ae721141f452c550ca635964ce71", 2, 666666666666, maxTime); //sub 0-100
+    // await exampleToken.timeSliceTransferFrom(owner.address, "0xcd3b766ccdd6ae721141f452c550ca635964ce71", 2, 666666666666, maxTime); //sub 0-100
 
-    await exampleToken.timeSliceTransferFrom(owner.address, "0xcd3b766ccdd6ae721141f452c550ca635964ce71", 2,666666666665, maxTime); //sub 0-100
-    await exampleToken.timeSliceTransferFrom(owner.address, "0xcd3b766ccdd6ae721141f452c550ca635964ce71", 2,666666666665, maxTime); //sub 0-100
-    await exampleToken.timeSliceTransferFrom(owner.address, "0xcd3b766ccdd6ae721141f452c550ca635964ce71", 2,666666666665, maxTime); //sub 0-100
+    // await exampleToken.timeSliceTransferFrom(owner.address, "0xcd3b766ccdd6ae721141f452c550ca635964ce71", 2,666666666665, maxTime); //sub 0-100
+    // await exampleToken.timeSliceTransferFrom(owner.address, "0xcd3b766ccdd6ae721141f452c550ca635964ce71", 2,666666666665, maxTime); //sub 0-100
+    // await exampleToken.timeSliceTransferFrom(owner.address, "0xcd3b766ccdd6ae721141f452c550ca635964ce71", 2,666666666665, maxTime); //sub 0-100
     
     // const balance2 = await exampleToken.timeBalanceOf(owner.address, now + 5000, now + 10000)
     // console.log('balanceOf2', parseInt(balance2._hex));
@@ -119,8 +119,8 @@ async function main() {
     const start = _res[1][k]
     const end = _res[2][k]
     format.push({
-      start,
-      end,
+      start: start,
+      end: end,
       amount
     })
   }
