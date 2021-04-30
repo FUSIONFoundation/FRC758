@@ -94,9 +94,7 @@ abstract contract FRC758 is IFRC758 {
     }
 
     function timeBalanceOf(address from, uint256 tokenStart, uint256 tokenEnd) public override view returns(uint256) {
-        console.log('rrrrrrrrrrrrrrrr', tokenStart, tokenEnd);
 		if (tokenStart >= tokenEnd) {
-            console.log('aaaaaaaaa');
            return 0;
 		}
 		uint256 next = headerIndex[from];
@@ -106,8 +104,7 @@ abstract contract FRC758 is IFRC758 {
 		uint256 amount = 0;   
 		while(next > 0) {
 		SlicedToken memory st = balances[from][next];
-        console.log(next);
-          console.log('eeeeeeeeeee', st.tokenStart, st.tokenEnd, st.amount);
+
             if( tokenStart < st.tokenStart || (st.next == 0 && tokenEnd > st.tokenEnd)) {
 				amount = 0;
 				break;
@@ -180,10 +177,8 @@ abstract contract FRC758 is IFRC758 {
         require(tokenStart < tokenEnd, "FRC758: tokenStart>=tokenEnd");
 
         uint256 timeBalance = timeBalanceOf(_from, tokenStart, tokenEnd); 
-        console.log('checkout Balance', tokenStart, tokenEnd, timeBalance);
 
         if(amount <= timeBalance) {
-            console.log('sub of', tokenStart, tokenEnd);
             SlicedToken memory st = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
             _subSliceFromBalance(_from, st);
             _addSliceToBalance(_to, st);
@@ -375,14 +370,11 @@ abstract contract FRC758 is IFRC758 {
     }    
     function _subSliceFromBalance(address addr, SlicedToken memory st) internal {
         uint256 count = ownedSlicedTokensCount[addr];
-
 		require(count != 0, 'Empty slice items');
-
         uint256 current = headerIndex[addr];
     
         do {
             SlicedToken storage currSt = balances[addr][current]; 
-            console.log('start sub Slice!!!!************************', st.tokenStart, st.tokenEnd, currSt.tokenStart);
             if(currSt.tokenEnd < block.timestamp) { 
                 headerIndex[addr] = currSt.next; 
                 current = currSt.next;
@@ -399,11 +391,8 @@ abstract contract FRC758 is IFRC758 {
             require(!(currSt.next == 0 && currSt.tokenEnd < st.tokenEnd), 'FRC758: subSlice time check fail point 2');
             require(!(currSt.tokenStart < st.tokenEnd && currSt.tokenStart > st.tokenStart), 'FRC758: subSlice time check fail point 3');
 
-            console.log(currSt.tokenStart == st.tokenStart, currSt.tokenEnd == st.tokenEnd);
             if(currSt.tokenStart == st.tokenStart && currSt.tokenEnd == st.tokenEnd) {
-                console.log(currSt.amount);
                 currSt.amount -= st.amount;
-                console.log(currSt.amount);
                 return;
             }
 
@@ -425,8 +414,6 @@ abstract contract FRC758 is IFRC758 {
 
             if(currSt.tokenStart < st.tokenStart ) { 
                 uint256 index1 = _addSlice(addr, currSt.tokenStart, st.tokenStart, currSt.amount, current);
-                console.log('<<<<<<<<', currSt.amount);
-                console.log(current, headerIndex[addr], index1);
                 if(current == headerIndex[addr]) { 
                     headerIndex[addr] = index1; 
                 }else {
@@ -444,7 +431,6 @@ abstract contract FRC758 is IFRC758 {
                 uint256 currStTokenEnd = currSt.tokenEnd;
                 currSt.amount -= st.amount;
                 currSt.tokenStart = st.tokenStart;
-                // currSt.tokenEnd = st.tokenEnd;
 
                 if(currStTokenEnd >= st.tokenEnd) {
                     if(currStTokenEnd > st.tokenEnd) {

@@ -97,25 +97,25 @@ describe("safeTransferFrom", function () {
     await frc758.timeSliceTransferFrom(owner.address, other.address, 1000, now + 650, now + 750);
     // await frc758.timeSliceTransferFrom(owner.address, other.address, 1000, now + 700, now + 720);
 
-    const res = await frc758.sliceOf(owner.address)
-    const _res = res.map((val) => {
-      return val.map((v) => {
-        return parseInt(v._hex)
-      })
-    })
+    // const res = await frc758.sliceOf(owner.address)
+    // const _res = res.map((val) => {
+    //   return val.map((v) => {
+    //     return parseInt(v._hex)
+    //   })
+    // })
 
-    const format = []
-    for (let k in _res[0]) {
-      const amount = _res[0][k]
-      const start = _res[1][k] - now
-      const end = _res[2][k] - now 
-      format.push({
-        start,
-        end,
-        amount
-      })
-    }
-    console.log(format);
+    // const format = []
+    // for (let k in _res[0]) {
+    //   const amount = _res[0][k]
+    //   const start = _res[1][k] - now
+    //   const end = _res[2][k] - now 
+    //   format.push({
+    //     start,
+    //     end,
+    //     amount
+    //   })
+    // }
+    // console.log(format);
     // error
 
     expect(await frc758.timeBalanceOf(owner.address, now, now + 500)).to.equal(1000);
