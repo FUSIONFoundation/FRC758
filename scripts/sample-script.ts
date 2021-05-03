@@ -27,7 +27,7 @@ async function main() {
 
   let now = parseInt( (Date.now() / 1000).toString())
 
-  const amount = 100
+  const amount = '10000000000000000000000000000000000000'
   
   // await sleep()
   // await exampleToken.mintTimeSlice(owner.address, amount, now, maxTime);
@@ -57,17 +57,31 @@ async function main() {
   // }
 
   // console.log(balance0)
-
+  console.log('address:', owner.address);
   await exampleToken.mint(owner.address, amount);
   await sleep()
 
-    await exampleToken.timeSliceTransferFrom(owner.address, "0xcd3b766ccdd6ae721141f452c550ca635964ce71", 2, 666666666665 , 666666666666)
-    await sleep()
-    await exampleToken.timeSliceTransferFrom(owner.address, "0xcd3b766ccdd6ae721141f452c550ca635964ce71", 2, 101, 666666666665);
-
-    const balance2 = await exampleToken.timeBalanceOf(owner.address, 666666666666, maxTime);
-    console.log('balanceOf2', parseInt(balance2._hex));
-    console.log( 666666666666, maxTime);
+  // 0x2a65e249320f413bcb3f2ea21fcfe9e8b30beafd 1
+   // 1630966399 666666666666
+  await exampleToken.timeSliceTransferFrom(owner.address, "0x2a65e249320f413bcb3f2ea21fcfe9e8b30beafd", 1, 1630966399 , 666666666666)
+    // await sleep()
+    // await exampleToken.timeSliceTransferFrom(owner.address, "0xcd3b766ccdd6ae721141f452c550ca635964ce71", 2, 666664666665, 666666666665);
+    // await sleep()
+    // await exampleToken.timeSliceTransferFrom(owner.address, "0xcd3b766ccdd6ae721141f452c550ca635964ce71", 2, 661664666665, 666626666665);
+    // await sleep()
+    // await exampleToken.timeSliceTransferFrom(owner.address, "0xcd3b766ccdd6ae721141f452c550ca635964ce71", 2, 666666662665, 666666666365);
+    // await sleep()
+    // await exampleToken.timeSliceTransferFrom(owner.address, "0xcd3b766ccdd6ae721141f452c550ca635964ce71", 2, 662666666665, 66666663665);
+    // await sleep()
+    // await exampleToken.timeSliceTransferFrom(owner.address, "0xcd3b766ccdd6ae721141f452c550ca635964ce71", 2, 662666666365, 666666666665);
+    // await sleep()
+    // await exampleToken.timeSliceTransferFrom(owner.address, "0xcd3b766ccdd6ae721141f452c550ca635964ce71", 2, 662636666665, 666666666665);
+    // await sleep()
+    // await exampleToken.timeSliceTransferFrom(owner.address, "0xcd3b766ccdd6ae721141f452c550ca635964ce71", 2, 662666636665, 666666666665);
+    
+    // const balance2 = await exampleToken.timeBalanceOf(owner.address, 666666666666, maxTime);
+    // console.log('balanceOf2', parseInt(balance2._hex));
+    // console.log( 666666666666, maxTime);
 
     // await exampleToken.timeSliceTransferFrom(owner.address, "0xcd3b766ccdd6ae721141f452c550ca635964ce71", 2, 666666666666, maxTime); //sub 0-100
 
@@ -101,7 +115,7 @@ async function main() {
   // await exampleToken.mintTimeSlice(owner.address, 40, now + 19, now + 25);
   // // console.log('s1')
 
-  // await sleep()
+  await sleep()
   
   const res = await exampleToken.sliceOf(owner.address)
   const _res = res.map((val)=> {

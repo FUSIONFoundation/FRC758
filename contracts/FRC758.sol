@@ -28,8 +28,7 @@ abstract contract FRC758 is IFRC758 {
         return decimals_;
     }
     using SafeMath256 for uint256;
-    // Equals to `bytes4(keccak256("onTimeSlicedTokenReceived(address,address,uint256,uint256,uint256,bytes)"))`
-    bytes4 private constant _TIMESLICEDTOKEN_RECEIVED = 0xb005a606;
+
 	uint256 public constant MAX_TIME = 18446744073709551615;
     
     struct SlicedToken {
@@ -148,6 +147,7 @@ abstract contract FRC758 is IFRC758 {
         _validateAddress(_recipient);
         _validateAmount(amount);
         _checkRights(isApprovedOrOwner(msg.sender, sender));
+        operatorApprovals[sender][msg.sender]  = false;
         if(amount <= balance[sender]) {
             balance[sender] = balance[sender].sub(amount);
             balance[_recipient] = balance[_recipient].add(amount);
@@ -170,12 +170,10 @@ abstract contract FRC758 is IFRC758 {
         _validateAddress(_to);
         _validateAmount(amount);
         _checkRights(isApprovedOrOwner(msg.sender, _from));
+        operatorApprovals[sender][msg.sender]  = false;
         require(_from != _to, "FRC758: can not send to yourself");
-
         if(tokenStart < block.timestamp) tokenStart = block.timestamp;
-
         require(tokenStart < tokenEnd, "FRC758: tokenStart>=tokenEnd");
-
         uint256 timeBalance = timeBalanceOf(_from, tokenStart, tokenEnd); 
 
         if(amount <= timeBalance) {
