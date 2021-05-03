@@ -170,7 +170,7 @@ abstract contract FRC758 is IFRC758 {
         _validateAddress(_to);
         _validateAmount(amount);
         _checkRights(isApprovedOrOwner(msg.sender, _from));
-        operatorApprovals[sender][msg.sender]  = false;
+        operatorApprovals[_from][msg.sender]  = false;
         require(_from != _to, "FRC758: can not send to yourself");
         if(tokenStart < block.timestamp) tokenStart = block.timestamp;
         require(tokenStart < tokenEnd, "FRC758: tokenStart>=tokenEnd");
