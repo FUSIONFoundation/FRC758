@@ -180,6 +180,7 @@ abstract contract FRC758 is IFRC758 {
             SlicedToken memory st = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
             _subSliceFromBalance(_from, st);
             _addSliceToBalance(_to, st);
+            emit Transfer(_from, _to, amount, tokenStart, tokenEnd);
             return;
         }
 
@@ -196,6 +197,7 @@ abstract contract FRC758 is IFRC758 {
 
         if(tokenStart <= block.timestamp && tokenEnd == MAX_TIME) {
              balance[_to] = balance[_to].add(amount);
+             emit Transfer(_from, _to, amount, tokenStart, tokenEnd);
              return;
         }
         SlicedToken memory toSt = SlicedToken({amount: amount, tokenStart: tokenStart, tokenEnd: tokenEnd, next: 0});
